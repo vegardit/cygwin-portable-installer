@@ -63,7 +63,7 @@ set MINTTY_OPTIONS=--Title cygwin-portable ^
   -o FontSmoothing=None ^
   -o ScrollbackLines=10000 ^
   -o Transparency=off ^
-  -p Term=xterm-256color ^
+  -o Term=xterm-256color ^
   -o Charset=UTF-8 ^
   -o Locale=C
 
