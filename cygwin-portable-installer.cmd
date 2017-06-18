@@ -184,6 +184,12 @@ echo Creating [%Init_sh%]...
     echo sed -i -e "s/cygdrive binary,posix/cygdrive binary,noacl,posix/" /etc/fstab
     echo mount -a
     echo.
+    echo #
+    echo # adjust Cygwin packages cache path
+    echo #
+    echo pkg_cache_dir=$(cygpath -w "$(cygpath -w /)/../cygwin-pkg-cache"^)
+    echo sed -i -E "s/.*\\\cygwin-pkg-cache/        ${pkg_cache_dir//\\/\\\\}/" /etc/setup/setup.rc
+    echo.
     if "%INSTALL_APT_CYG%" == "yes" (
         echo #
         echo # Installing apt-cyg package manager if required
@@ -272,7 +278,7 @@ set Bashrc_sh=%CYGWIN_ROOT%\home\%CYGWIN_USERNAME%\.bashrc
 if not "%PROXY_HOST%" == "" (
     echo Adding proxy settings for host [%COMPUTERNAME%] to [/home/%CYGWIN_USERNAME%/.bashrc]...
     find "export http_proxy" "%Bashrc_sh%" >NUL || (
-		echo.
+        echo.
         echo if [[ $HOSTMAME == "%COMPUTERNAME%" ]]; then
         echo     export http_proxy=http://%PROXY_HOST%:%PROXY_PORT%
         echo     export https_proxy=$http_proxy
@@ -284,14 +290,14 @@ if not "%PROXY_HOST%" == "" (
     ) >>"%Bashrc_sh%" || goto :fail
 )
 if "%INSTALL_BASH_FUNK%" == "yes" (
-	echo Adding bash-funk to [/home/%CYGWIN_USERNAME%/.bashrc]...
-	find "bash-funk" "%Bashrc_sh%" >NUL || (
-		(
-			echo.
-			echo source /opt/bash-funk/bash-funk.sh
-		) >>"%Bashrc_sh%" || goto :fail
-		"%CYGWIN_ROOT%\bin\dos2unix" "%Bashrc_sh%" || goto :fail
-	)
+    echo Adding bash-funk to [/home/%CYGWIN_USERNAME%/.bashrc]...
+    find "bash-funk" "%Bashrc_sh%" >NUL || (
+        (
+            echo.
+            echo source /opt/bash-funk/bash-funk.sh
+        ) >>"%Bashrc_sh%" || goto :fail
+        "%CYGWIN_ROOT%\bin\dos2unix" "%Bashrc_sh%" || goto :fail
+    )
 )
 "%CYGWIN_ROOT%\bin\dos2unix" "%Bashrc_sh%" || goto :fail
 
