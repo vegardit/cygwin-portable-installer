@@ -240,7 +240,7 @@ echo Creating [%Start_cmd%]...
     echo set CYGWIN_DRIVE=%%~d0
     echo set CYGWIN_ROOT=%%~dp0cygwin
     echo.
-    echo set PATH=%CYGWIN_PATH%;%%CYGWIN_ROOT%%\bin
+    echo set PATH=%%CYGWIN_ROOT%%\bin;%CYGWIN_PATH%
     echo set ALLUSERSPROFILE=%%CYGWIN_ROOT%%.ProgramData
     echo set ProgramData=%%ALLUSERSPROFILE%%
     echo set CYGWIN=nodosfilewarning
