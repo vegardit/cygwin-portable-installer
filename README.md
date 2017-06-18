@@ -7,8 +7,14 @@
 
 ## <a name="what-is-it"></a>What is it?
 
-cygwin-portable-installer is a self-containing Windows batch file to create portable [Cygwin](http://cygwin.org) 
-installations that e.g. can live on USB sticks.
+cygwin-portable-installer is a self-containing Windows batch file perform an unattended installation of a portable [Cygwin](http://cygwin.org) environment.
+
+### Features
+
+* **portable**: you can e.g. install it on an USB sticks and use the same configuration on different computers
+* **256-color shell**: [Mintty](https://mintty.github.io/) is pre-configured as terminal
+* **command-line package installer**: [apt-cyg](https://github.com/transcode-open/apt-cyg) package manager will be automatically installed
+* **adaptive Bash prompt**: [bash-funk](https://github.com/vegardit/bash-funk) will be automatically installed
 
 
 ## <a name="install"></a>Installation
