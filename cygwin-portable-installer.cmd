@@ -279,7 +279,7 @@ if not "%PROXY_HOST%" == "" (
     echo Adding proxy settings for host [%COMPUTERNAME%] to [/home/%CYGWIN_USERNAME%/.bashrc]...
     find "export http_proxy" "%Bashrc_sh%" >NUL || (
         echo.
-        echo if [[ $HOSTMAME == "%COMPUTERNAME%" ]]; then
+        echo if [[ $HOSTNAME == "%COMPUTERNAME%" ]]; then
         echo     export http_proxy=http://%PROXY_HOST%:%PROXY_PORT%
         echo     export https_proxy=$http_proxy
         echo     export no_proxy="::1,127.0.0.1,localhost,169.254.169.254,%COMPUTERNAME%,*.%USERDNSDOMAIN%"
