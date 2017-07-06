@@ -40,6 +40,11 @@ set INSTALL_APT_CYG=yes
 :: if set to 'yes' the bash-funk adaptive Bash prompt (https://github.com/vegardit/bash-funk) will be installed automatically
 set INSTALL_BASH_FUNK=yes
 
+:: use ConEmu based tabbed terminal instead of Mintty based single window terminal, see https://conemu.github.io/
+set INSTALL_CONEMU=yes
+set CON_EMU_OPTIONS=-Title cygwin-portable ^
+ -QuitOnClose
+
 :: add more path if required, but at the cost of runtime performance (e.g. slower forks)
 set CYGWIN_PATH=%%SystemRoot%%\system32;%%SystemRoot%%
 
@@ -47,7 +52,7 @@ set CYGWIN_PATH=%%SystemRoot%%\system32;%%SystemRoot%%
 set PROXY_HOST=
 set PROXY_PORT=8080
 
-:: set mintty options, see https://cdn.rawgit.com/mintty/mintty/master/docs/mintty.1.html#CONFIGURATION
+:: set Mintty options, see https://cdn.rawgit.com/mintty/mintty/master/docs/mintty.1.html#CONFIGURATION
 set MINTTY_OPTIONS=--Title cygwin-portable ^
   -o Columns=160 ^
   -o Rows=50 ^
@@ -74,14 +79,16 @@ echo # Installing [Cygwin Portable]...
 echo ###########################################################
 echo.
 
-set CYGWIN_ROOT=%~dp0cygwin
+set INSTALL_ROOT=%~dp0
+
+set CYGWIN_ROOT=%INSTALL_ROOT%cygwin
 if not exist "%CYGWIN_ROOT%" (
     md "%CYGWIN_ROOT%"
 )
 
 :: create VB script that can download files
 :: not using PowerShell which may be blocked by group policies
-set DOWNLOADER=%~dp0downloader.vbs
+set DOWNLOADER=%INSTALL_ROOT%downloader.vbs
 echo Creating [%DOWNLOADER%] script...
 if "%PROXY_HOST%" == "" (
     set DOWNLOADER_PROXY=.
@@ -112,13 +119,12 @@ if "%PROXY_HOST%" == "" (
 ) >"%DOWNLOADER%" || goto :fail
 
 :: download Cygwin 32 or 64 setup exe
-
 if "%PROCESSOR_ARCHITEW6432%" == "AMD64" (
     set CYGWIN_SETUP=setup-x86_64.exe
 ) else (
     if "%PROCESSOR_ARCHITECTURE%" == "x86" (
-        set CYGWIN_SETUP=setup-x86.exe )
-    else (
+        set CYGWIN_SETUP=setup-x86.exe
+    ) else (
         set CYGWIN_SETUP=setup-x86_64.exe
     )
 )
@@ -134,6 +140,11 @@ if "%PROXY_HOST%" == "" (
     set CYGWIN_PROXY=
 ) else (
     set CYGWIN_PROXY=--proxy "%PROXY_HOST%:%PROXY_PORT%"
+)
+
+:: if conemu install is selected we need to be able to extract 7z archives
+if "%INSTALL_APT_CYG%" == "yes" (
+    set CYGWIN_PACKAGES=bsdtar,%CYGWIN_PACKAGES%
 )
 
 echo Running Cygwin setup...
@@ -160,6 +171,10 @@ if exist "%Cygwin_bat%" (
 )
 
 :configure
+:: disable Cygwin's - apparently broken - special ACL treatment which prevents apt-cyg and other programs from working
+echo Replacing etc/fstab
+rename %CYGWIN_ROOT%\etc\fstab fstab.orig || goto :fail
+echo none /cygdrive cygdrive binary,noacl,posix=0,user 0 0 > %CYGWIN_ROOT%\etc\fstab
 
 set Init_sh=%CYGWIN_ROOT%\portable-init.sh
 echo Creating [%Init_sh%]...
@@ -178,23 +193,42 @@ echo Creating [%Init_sh%]...
     echo     echo $USERNAME:unused:1001:$GID:$USER_SID:$HOME:/bin/bash ^>^> /etc/passwd
     echo fi
     echo.
-    echo #
-    echo # disable Cygwin's - apparently broken - special ACL treatment which prevents apt-cyg and other programs from working
-    echo #
-    echo sed -i -e "s/cygdrive binary,posix/cygdrive binary,noacl,posix/" /etc/fstab
-    echo mount -a
+    echo # already set in cygwin-portable.cmd:
+    echo # export CYGWIN_ROOT=$(cygpath -w /^)
     echo.
     echo #
     echo # adjust Cygwin packages cache path
     echo #
-    echo pkg_cache_dir=$(cygpath -w "$(cygpath -w /)/../cygwin-pkg-cache"^)
+    echo pkg_cache_dir=$(cygpath -w "$CYGWIN_ROOT/../cygwin-pkg-cache"^)
     echo sed -i -E "s/.*\\\cygwin-pkg-cache/        ${pkg_cache_dir//\\/\\\\}/" /etc/setup/setup.rc
     echo.
+    if "%INSTALL_CONEMU%" == "yes" (
+        echo #
+        echo # Installing conemu if required
+        echo #
+        echo conemu_dir=$(cygpath -w "$CYGWIN_ROOT/../conemu"^)
+        echo if [[ ! -e $conemu_dir ]]; then
+        echo     echo "Installing ConEmu..."
+        echo     conemu_url="https://github.com$(wget https://github.com/Maximus5/ConEmu/releases/latest -O - 2>/dev/null | egrep '/.*/releases/download/.*/.*7z' -o)" ^&^& \
+        echo     echo "Download URL=$conemu_url" ^&^& \
+        echo     wget -O "${conemu_dir}.7z" $conemu_url ^&^& \
+        echo     mkdir $conemu_dir ^&^& \
+        echo     bsdtar -xvf "${conemu_dir}.7z" -C "$conemu_dir" ^&^& \
+        echo     rm "${conemu_dir}.7z" ^&^& \
+        echo     echo "Installing ConEmu Cygwin Connector..." ^&^& \
+        echo     conemu_connector_url="https://github.com$(wget https://github.com/Maximus5/cygwin-connector/releases/latest -O - 2>/dev/null | egrep '/.*/releases/download/.*/.*7z' -o)" ^&^& \
+        echo     echo "Download URL=$conemu_connector_url" ^&^& \
+        echo     wget -O "${conemu_dir}_cygwin_connector.7z" $conemu_connector_url ^&^& \
+        echo     bsdtar -xvf "${conemu_dir}_cygwin_connector.7z" -C "/bin"  --include 'conemu-cyg-*.exe' ^&^& \
+        echo     chmod 755 /bin/conemu-cyg-*.exe ^&^& \
+        echo     rm "${conemu_dir}_cygwin_connector.7z"
+        echo fi
+    )
     if "%INSTALL_APT_CYG%" == "yes" (
         echo #
         echo # Installing apt-cyg package manager if required
         echo #
-        echo if ! [[ -x /usr/local/bin/apt-cyg ]]; then
+        echo if [[ ! -x /usr/local/bin/apt-cyg ]]; then
         if not "%PROXY_HOST%" == "" (
             echo     # temporary proxy settings during initial installation
             echo     export http_proxy=http://%PROXY_HOST%:%PROXY_PORT%
@@ -211,6 +245,7 @@ echo Creating [%Init_sh%]...
         echo #
         echo # Installing bash-funk if required
         echo #
+        echo if [[ ! -e /opt ]]; then mkdir /opt; fi
         echo if [[ ! -e /opt/bash-funk/bash-funk.sh ]]; then
         if not "%PROXY_HOST%" == "" (
             echo   # temporary proxy settings during initial installation
@@ -232,15 +267,15 @@ echo Creating [%Init_sh%]...
 ) >"%Init_sh%" || goto :fail
 "%CYGWIN_ROOT%\bin\dos2unix" "%Init_sh%" || goto :fail
 
-set Start_cmd=%~dp0cygwin-portable.cmd
+set Start_cmd=%INSTALL_ROOT%cygwin-portable.cmd
 echo Creating [%Start_cmd%]...
 (
     echo @echo off
-    echo set CWD="%%cd%%"
+    echo set CWD=%%cd%%
     echo set CYGWIN_DRIVE=%%~d0
     echo set CYGWIN_ROOT=%%~dp0cygwin
     echo.
-    echo set PATH=%%CYGWIN_ROOT%%\bin;%CYGWIN_PATH%
+    echo set PATH=%CYGWIN_PATH%;%%CYGWIN_ROOT%%\bin
     echo set ALLUSERSPROFILE=%%CYGWIN_ROOT%%.ProgramData
     echo set ProgramData=%%ALLUSERSPROFILE%%
     echo set CYGWIN=nodosfilewarning
@@ -258,7 +293,19 @@ echo Creating [%Start_cmd%]...
     echo bash "%%CYGWIN_ROOT%%\portable-init.sh"
     echo.
     echo if "%%1" == "" (
-    echo   mintty --nopin %MINTTY_OPTIONS% --icon %CYGWIN_ROOT%\Cygwin-Terminal.ico -
+    if "%INSTALL_CONEMU%" == "yes" (
+        echo if "%%PROCESSOR_ARCHITEW6432%%" == "AMD64" (
+        echo     start %%~dp0conemu\ConEmu64.exe %CON_EMU_OPTIONS%
+        echo ^) else (
+        echo     if "%%PROCESSOR_ARCHITECTURE%%" == "x86" (
+        echo         start %%~dp0conemu\ConEmu.exe %CON_EMU_OPTIONS%
+        echo     ^) else (
+        echo         start %%~dp0conemu\ConEmu64.exe %CON_EMU_OPTIONS%
+        echo     ^)
+        echo ^)
+    ) else (
+        echo   mintty --nopin %MINTTY_OPTIONS% --icon %CYGWIN_ROOT%\Cygwin-Terminal.ico -
+    )
     echo ^) else (
     echo   if "%%1" == "no-mintty" (
     echo     bash --login -i
@@ -267,11 +314,80 @@ echo Creating [%Start_cmd%]...
     echo   ^)
     echo ^)
     echo.
-    echo cd "%%cwd%%"
+    echo cd "%%CWD%%"
 ) >"%Start_cmd%" || goto :fail
 
 :: launching bash once to initialize user home dir
 call %Start_cmd% whoami
+
+set conemu_config=%INSTALL_ROOT%conemu\ConEmu.xml
+if "%INSTALL_CONEMU%" == "yes" (
+    (
+        echo ^<?xml version="1.0" encoding="UTF-8"?^>
+        echo ^<key name="Software"^>^<key name="ConEmu"^>^<key name=".Vanilla" build="170622"^>
+        echo    ^<value name="StartTasksName" type="string" data="{Bash::CygWin bash}"/^>
+        echo    ^<value name="ColorTable00" type="dword" data="00000000"/^>
+        echo    ^<value name="ColorTable01" type="dword" data="00ee0000"/^>
+        echo    ^<value name="ColorTable02" type="dword" data="0000cd00"/^>
+        echo    ^<value name="ColorTable03" type="dword" data="00cdcd00"/^>
+        echo    ^<value name="ColorTable04" type="dword" data="000000cd"/^>
+        echo    ^<value name="ColorTable05" type="dword" data="00cd00cd"/^>
+        echo    ^<value name="ColorTable06" type="dword" data="0000cdcd"/^>
+        echo    ^<value name="ColorTable07" type="dword" data="00e5e5e5"/^>
+        echo    ^<value name="ColorTable08" type="dword" data="007f7f7f"/^>
+        echo    ^<value name="ColorTable09" type="dword" data="00ff5c5c"/^>
+        echo    ^<value name="ColorTable10" type="dword" data="0000ff00"/^>
+        echo    ^<value name="ColorTable11" type="dword" data="00ffff00"/^>
+        echo    ^<value name="ColorTable12" type="dword" data="000000ff"/^>
+        echo    ^<value name="ColorTable13" type="dword" data="00ff00ff"/^>
+        echo    ^<value name="ColorTable14" type="dword" data="0000ffff"/^>
+        echo    ^<value name="ColorTable15" type="dword" data="00ffffff"/^>
+        echo    ^<value name="KeyboardHooks" type="hex" data="01"/^>
+        echo    ^<value name="UseInjects" type="hex" data="01"/^>
+        echo    ^<value name="Update.CheckOnStartup" type="hex" data="00"/^>
+        echo    ^<value name="Update.CheckHourly" type="hex" data="00"/^>
+        echo    ^<value name="Update.UseBuilds" type="hex" data="02"/^>
+        echo    ^<value name="FontUseUnits" type="hex" data="01"/^>
+        echo    ^<value name="FontSize" type="ulong" data="13"/^>
+        echo    ^<value name="StatusFontHeight" type="long" data="12"/^>
+        echo    ^<value name="TabFontHeight" type="long" data="12"/^>
+        echo    ^<key name="HotKeys"^>^<value name="CloseTabKey" type="dword" data="00001157"/^>^</key^>
+        echo    ^<value name="FontName" type="string" data="Courier New"/^>
+        echo    ^<value name="Anti-aliasing" type="ulong" data="3"/^>
+        echo    ^<value name="DefaultBufferHeight" type="long" data="9999"/^>
+        echo    ^<value name="ClipboardConfirmEnter" type="hex" data="00"/^>
+        echo    ^<value name="StatusBar.Flags" type="dword" data="00000003"/^>
+        echo    ^<value name="StatusFontFace" type="string" data="Tahoma"/^>
+        echo    ^<value name="StatusBar.Color.Back" type="dword" data="007f7f7f"/^>
+        echo    ^<value name="StatusBar.Color.Light" type="dword" data="00ffffff"/^>
+        echo    ^<value name="StatusBar.Color.Dark" type="dword" data="00000000"/^>
+        echo    ^<value name="StatusBar.Hide.VCon" type="hex" data="01"/^>
+        echo    ^<value name="StatusBar.Hide.CapsL" type="hex" data="00"/^>
+        echo    ^<value name="StatusBar.Hide.ScrL" type="hex" data="00"/^>
+        echo    ^<value name="StatusBar.Hide.ABuf" type="hex" data="01"/^>
+        echo    ^<value name="StatusBar.Hide.Srv" type="hex" data="01"/^>
+        echo    ^<value name="StatusBar.Hide.Transparency" type="hex" data="01"/^>
+        echo    ^<value name="StatusBar.Hide.New" type="hex" data="01"/^>
+        echo    ^<value name="StatusBar.Hide.Sync" type="hex" data="01"/^>
+        echo    ^<value name="StatusBar.Hide.Proc" type="hex" data="01"/^>
+        echo    ^<value name="StatusBar.Hide.Title" type="hex" data="00"/^>
+        echo    ^<value name="StatusBar.Hide.Time" type="hex" data="00"/^>
+        echo    ^<value name="TabFontFace" type="string" data="Tahoma"/^>
+        echo    ^<key name="Tasks"^>
+        echo        ^<value name="Count" type="long" data="1"/^>
+        echo        ^<key name="Task1"^>
+        echo            ^<value name="Name" type="string" data="{Bash::CygWin bash}"/^>
+        echo            ^<value name="Flags" type="dword" data="00000005"/^>
+        echo            ^<value name="Hotkey" type="dword" data="0000a254"/^>
+        echo            ^<value name="GuiArgs" type="string" data=""/^>
+        echo            ^<value name="Cmd1" type="string" data="%%ConEmuDir%%\..\cygwin\bin\conemu-cyg-64.exe -new_console:m:/cygdrive -new_console:C:&quot;%%ConEmuDir%%\..\cygwin\Cygwin.ico&quot;:d:&quot;%%ConEmuDir%%\..\cygwin\home\%CYGWIN_USERNAME%&quot;"/^>
+        echo            ^<value name="Active" type="long" data="0"/^>
+        echo            ^<value name="Count" type="long" data="1"/^>
+        echo        ^</key^>
+        echo    ^</key^>
+        echo ^</key^>^</key^>^</key^>
+    )> "%conemu_config%" || goto :fail
+)
 
 set Bashrc_sh=%CYGWIN_ROOT%\home\%CYGWIN_USERNAME%\.bashrc
 
