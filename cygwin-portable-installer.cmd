@@ -202,6 +202,12 @@ echo Creating [%Init_sh%]...
     echo pkg_cache_dir=$(cygpath -w "$CYGWIN_ROOT/../cygwin-pkg-cache"^)
     echo sed -i -E "s/.*\\\cygwin-pkg-cache/        ${pkg_cache_dir//\\/\\\\}/" /etc/setup/setup.rc
     echo.
+    if not "%PROXY_HOST%" == "" (
+        echo if [[ $HOSTNAME == "%COMPUTERNAME%" ]]; then
+        echo     export http_proxy=http://%PROXY_HOST%:%PROXY_PORT%
+        echo     export https_proxy=$http_proxy
+        echo fi
+    )
     if "%INSTALL_CONEMU%" == "yes" (
         echo #
         echo # Installing conemu if required
@@ -229,11 +235,6 @@ echo Creating [%Init_sh%]...
         echo # Installing apt-cyg package manager if required
         echo #
         echo if [[ ! -x /usr/local/bin/apt-cyg ]]; then
-        if not "%PROXY_HOST%" == "" (
-            echo     # temporary proxy settings during initial installation
-            echo     export http_proxy=http://%PROXY_HOST%:%PROXY_PORT%
-            echo     export https_proxy=$http_proxy
-        )
         echo     echo "Installing apt-cyg..."
         echo     wget -O /usr/local/bin/apt-cyg https://raw.githubusercontent.com/transcode-open/apt-cyg/master/apt-cyg
         echo     chmod +x /usr/local/bin/apt-cyg
@@ -247,11 +248,6 @@ echo Creating [%Init_sh%]...
         echo #
         echo if [[ ! -e /opt ]]; then mkdir /opt; fi
         echo if [[ ! -e /opt/bash-funk/bash-funk.sh ]]; then
-        if not "%PROXY_HOST%" == "" (
-            echo   # temporary proxy settings during initial installation
-            echo   export http_proxy=http://%PROXY_HOST%:%PROXY_PORT%
-            echo   export https_proxy=$http_proxy
-        )
         echo   echo Installing [bash-funk]...
         echo   if hash git ^&^>/dev/null; then
         echo     git clone https://github.com/vegardit/bash-funk --branch master --single-branch /opt/bash-funk
@@ -351,7 +347,10 @@ if "%INSTALL_CONEMU%" == "yes" (
         echo    ^<value name="FontSize" type="ulong" data="13"/^>
         echo    ^<value name="StatusFontHeight" type="long" data="12"/^>
         echo    ^<value name="TabFontHeight" type="long" data="12"/^>
-        echo    ^<key name="HotKeys"^>^<value name="CloseTabKey" type="dword" data="00001157"/^>^</key^>
+        echo    ^<key name="HotKeys"^>
+        echo        ^<value name="KeyMacro01" type="dword" data="00001157"/^>
+        echo        ^<value name="KeyMacro01.Text" type="string" data="Close(1,1)"/^>
+        echo    ^</key^>
         echo    ^<value name="FontName" type="string" data="Courier New"/^>
         echo    ^<value name="Anti-aliasing" type="ulong" data="3"/^>
         echo    ^<value name="DefaultBufferHeight" type="long" data="9999"/^>
