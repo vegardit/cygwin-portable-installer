@@ -1,6 +1,7 @@
 # cygwin-portable-installer
 
 1. [What is it?](#what-is-it)
+1. [Features](#features)
 1. [Installation](#install)
 1. [License](#license)
 
@@ -9,10 +10,12 @@
 
 cygwin-portable-installer is a self-containing Windows batch file perform an unattended installation of a portable [Cygwin](http://cygwin.org) environment.
 
-### Features
+![screenshot](screenshot.png)
+
+## Features
 
 * **portable**: you can e.g. install it on an USB sticks and use the same configuration on different computers
-* **256-color multi-tabbed shell**: [ConEmu](https://conemu.github.io/) incl. [Cygwin Connector](https://github.com/Maximus5/cygwin-connector) is pre-configured as terminal
+* **256-color multi-tabbed shell**: [ConEmu](https://conemu.github.io/) incl. [Cygwin Connector](https://github.com/Maximus5/cygwin-connector) is pre-configured as terminal by default. Alternatively you can choose to use the single tabbed [Mintty](https://mintty.github.io/) terminal.
 * **command-line package installer**: [apt-cyg](https://github.com/transcode-open/apt-cyg) package manager will be automatically installed
 * **adaptive Bash prompt**: [bash-funk](https://github.com/vegardit/bash-funk) will be automatically installed
 
@@ -27,8 +30,8 @@ cygwin-portable-installer is a self-containing Windows batch file perform an una
     2. install [Cygwin](http://cygwin.org) with the pre-selected set of packages,
     3. install the [ConEmu](https://conemu.github.io/) tabbed terminal,
     4. create an init scripts that will keep the installation portable,
-    5. install the [apt-cyg](https://github.com/transcode-open/apt-cyg) package manager.
-    6. install the [bash-funk](https://github.com/vegardit/bash-funk) Bash toolbox and adaptive Bash prompt.
+    5. install the [apt-cyg](https://github.com/transcode-open/apt-cyg) command-line package manager.
+    6. install the [bash-funk](https://github.com/vegardit/bash-funk) Bash toolbox with it's adaptive Bash prompt.
 5. Now you can launch your portable Cygwin environment using the newly created `cygwin-portable.cmd` batch file.
 
 
