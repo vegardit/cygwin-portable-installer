@@ -8,7 +8,7 @@
 
 ## <a name="what-is-it"></a>What is it?
 
-cygwin-portable-installer is a self-containing Windows batch file perform an unattended installation of a portable [Cygwin](http://cygwin.org) environment.
+cygwin-portable-installer is a self-containing Windows batch file to perform an unattended installation of a portable [Cygwin](http://cygwin.org) environment.
 
 ![screenshot](screenshot.png)
 
