@@ -150,7 +150,7 @@ if "%INSTALL_APT_CYG%" == "yes" (
 echo Running Cygwin setup...
 "%CYGWIN_ROOT%\%CYGWIN_SETUP%" --no-admin ^
  --arch x86_64 ^
- --site http://ftp.inf.tu-dresden.de/software/windows/cygwin32 %CYGWIN_PROXY% ^
+ --site %CYGWIN_MIRROR% %CYGWIN_PROXY% ^
  --root "%CYGWIN_ROOT%" ^
  --local-package-dir "%CYGWIN_ROOT%-pkg-cache" ^
  --no-shortcuts ^
