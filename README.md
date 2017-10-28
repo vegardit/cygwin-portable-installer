@@ -10,7 +10,11 @@
 
 cygwin-portable-installer is a self-containing Windows batch file to perform an unattended installation of a portable [Cygwin](http://cygwin.org) environment.
 
+The installer has been implemented as a Batch script and not PowerShell script because in some corporate environments execution of PowerShell scripts is 
+disabled for non-administrative users via group policies.
+
 ![screenshot](screenshot.png)
+
 
 ## Features
 
