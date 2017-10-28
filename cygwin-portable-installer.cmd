@@ -23,6 +23,10 @@
 :: - apt-cyg (a cygwin command-line package manager, see https://github.com/transcode-open/apt-cyg) and
 :: - bash-funk (a Bash toolbox and adaptive Bash prompt, see https://github.com/vegardit/bash-funk)
 
+:: ============================================================================================================
+:: CONFIG CUSTOMIZATION START
+:: ============================================================================================================
+
 :: You can customize the following variables to your needs before running the batch file:
 
 :: choose a user name under Cygwin
@@ -72,6 +76,9 @@ set MINTTY_OPTIONS=--Title cygwin-portable ^
   -o Charset=UTF-8 ^
   -o Locale=C
 
+:: ============================================================================================================
+:: CONFIG CUSTOMIZATION END
+:: ============================================================================================================
 
 echo.
 echo ###########################################################
@@ -142,14 +149,15 @@ if "%PROXY_HOST%" == "" (
     set CYGWIN_PROXY=--proxy "%PROXY_HOST%:%PROXY_PORT%"
 )
 
-:: if conemu install is selected we need to be able to extract 7z archives
-if "%INSTALL_APT_CYG%" == "yes" (
+:: if conemu install is selected we need to be able to extract 7z archives, otherwise we need to install mintty
+if "%INSTALL_CONEMU%" == "yes" (
     set CYGWIN_PACKAGES=bsdtar,%CYGWIN_PACKAGES%
+) else (
+    set CYGWIN_PACKAGES=mintty,%CYGWIN_PACKAGES%
 )
 
 echo Running Cygwin setup...
 "%CYGWIN_ROOT%\%CYGWIN_SETUP%" --no-admin ^
- --arch x86_64 ^
  --site %CYGWIN_MIRROR% %CYGWIN_PROXY% ^
  --root "%CYGWIN_ROOT%" ^
  --local-package-dir "%CYGWIN_ROOT%-pkg-cache" ^
@@ -159,7 +167,7 @@ echo Running Cygwin setup...
  --upgrade-also ^
  --no-replaceonreboot ^
  --quiet-mode ^
- --packages dos2unix,mintty,wget,%CYGWIN_PACKAGES% || goto :fail
+ --packages dos2unix,wget,%CYGWIN_PACKAGES% || goto :fail
 
 set Cygwin_bat=%CYGWIN_ROOT%\Cygwin.bat
 if exist "%Cygwin_bat%" (
@@ -171,10 +179,6 @@ if exist "%Cygwin_bat%" (
 )
 
 :configure
-:: disable Cygwin's - apparently broken - special ACL treatment which prevents apt-cyg and other programs from working
-echo Replacing etc/fstab
-rename %CYGWIN_ROOT%\etc\fstab fstab.orig || goto :fail
-echo none /cygdrive cygdrive binary,noacl,posix=0,user 0 0 > %CYGWIN_ROOT%\etc\fstab
 
 set Init_sh=%CYGWIN_ROOT%\portable-init.sh
 echo Creating [%Init_sh%]...
@@ -218,7 +222,7 @@ echo Creating [%Init_sh%]...
         echo     conemu_url="https://github.com$(wget https://github.com/Maximus5/ConEmu/releases/latest -O - 2>/dev/null | egrep '/.*/releases/download/.*/.*7z' -o)" ^&^& \
         echo     echo "Download URL=$conemu_url" ^&^& \
         echo     wget -O "${conemu_dir}.7z" $conemu_url ^&^& \
-        echo     mkdir $conemu_dir ^&^& \
+        echo     mkdir "$conemu_dir" ^&^& \
         echo     bsdtar -xvf "${conemu_dir}.7z" -C "$conemu_dir" ^&^& \
         echo     rm "${conemu_dir}.7z" ^&^& \
         echo     echo "Installing ConEmu Cygwin Connector..." ^&^& \
@@ -284,6 +288,22 @@ echo Creating [%Start_cmd%]...
     echo set GROUP=None
     echo set GRP=
     echo.
+    echo echo Replacing [/etc/fstab]...
+    echo ^(
+    echo     echo # /etc/fstab
+	echo     echo # IMPORTANT: this files is recreated on each start by cygwin-portable.cmd
+    echo     echo #
+    echo     echo #    This file is read once by the first process in a Cygwin process tree.
+    echo     echo #    To pick up changes, restart all Cygwin processes.  For a description
+    echo     echo #    see https://cygwin.com/cygwin-ug-net/using.html#mount-table
+    echo     echo.
+    echo     echo # noacl = disable Cygwin's - apparently broken - special ACL treatment which prevents apt-cyg and other programs from working
+    echo     echo %%CYGWIN_ROOT%%/bin  /usr/bin ntfs binary,auto,noacl           0  0
+    echo     echo %%CYGWIN_ROOT%%/lib  /usr/lib ntfs binary,auto,noacl           0  0
+    echo     echo %%CYGWIN_ROOT%%      /        ntfs override,binary,auto,noacl  0  0
+    echo     echo none /cygdrive cygdrive binary,noacl,posix=0,user 0 0
+    echo ^) ^> %%CYGWIN_ROOT%%\etc\fstab
+	echo.
     echo %%CYGWIN_DRIVE%%
     echo chdir "%%CYGWIN_ROOT%%\bin"
     echo bash "%%CYGWIN_ROOT%%\portable-init.sh"
@@ -411,7 +431,6 @@ if "%INSTALL_BASH_FUNK%" == "yes" (
             echo.
             echo source /opt/bash-funk/bash-funk.sh
         ) >>"%Bashrc_sh%" || goto :fail
-        "%CYGWIN_ROOT%\bin\dos2unix" "%Bashrc_sh%" || goto :fail
     )
 )
 "%CYGWIN_ROOT%\bin\dos2unix" "%Bashrc_sh%" || goto :fail
