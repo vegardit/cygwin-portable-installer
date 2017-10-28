@@ -16,12 +16,16 @@
 ::
 :: @author Sebastian Thomschke, Vegard IT GmbH
 
+
 :: ABOUT
 :: =====
 :: This self-contained Windows batch file creates a portable Cygwin (https://cygwin.com/mirrors.html) installation.
 :: By default it automatically installs :
-:: - apt-cyg (a cygwin command-line package manager, see https://github.com/transcode-open/apt-cyg) and
-:: - bash-funk (a Bash toolbox and adaptive Bash prompt, see https://github.com/vegardit/bash-funk)
+:: - apt-cyg (cygwin command-line package manager, see https://github.com/transcode-open/apt-cyg)
+:: - bash-funk (Bash toolbox and adaptive Bash prompt, see https://github.com/vegardit/bash-funk)
+:: - ConEmu (multi-tabbed terminal, https://conemu.github.io/)
+:: - testssl.sh (command line tool to check SSL/TLS configurations of servers, see https://testssl.sh/)
+
 
 :: ============================================================================================================
 :: CONFIG CUSTOMIZATION START
@@ -37,6 +41,9 @@ set CYGWIN_MIRROR=http://ftp.inf.tu-dresden.de/software/windows/cygwin32
 
 :: select the packages to be installed automatically via apt-cyg
 set CYGWIN_PACKAGES=bash-completion,bc,curl,expect,git,git-svn,gnupg,inetutils,mc,nc,openssh,openssl,perl,python,subversion,unzip,vim,zip
+
+:: if set to 'yes' the local package cache created by cygwin setup will be deleted after installation/update
+set DELETE_CYGWIN_PACKAGE_CACHE=yes
 
 :: if set to 'yes' the apt-cyg command line package manager (https://github.com/transcode-open/apt-cyg) will be installed automatically
 set INSTALL_APT_CYG=yes
@@ -85,6 +92,7 @@ set MINTTY_OPTIONS=--Title cygwin-portable ^
 :: CONFIG CUSTOMIZATION END
 :: ============================================================================================================
 
+
 echo.
 echo ###########################################################
 echo # Installing [Cygwin Portable]...
@@ -94,6 +102,7 @@ echo.
 set INSTALL_ROOT=%~dp0
 
 set CYGWIN_ROOT=%INSTALL_ROOT%cygwin
+echo Creating Cygwin root [%CYGWIN_ROOT%]...
 if not exist "%CYGWIN_ROOT%" (
     md "%CYGWIN_ROOT%"
 )
@@ -130,7 +139,7 @@ if "%PROXY_HOST%" == "" (
     echo.
 ) >"%DOWNLOADER%" || goto :fail
 
-:: download Cygwin 32 or 64 setup exe
+:: download Cygwin 32 or 64 setup exe depending on detected architecture
 if "%PROCESSOR_ARCHITEW6432%" == "AMD64" (
     set CYGWIN_SETUP=setup-x86_64.exe
 ) else (
@@ -169,7 +178,7 @@ echo Running Cygwin setup...
 "%CYGWIN_ROOT%\%CYGWIN_SETUP%" --no-admin ^
  --site %CYGWIN_MIRROR% %CYGWIN_PROXY% ^
  --root "%CYGWIN_ROOT%" ^
- --local-package-dir "%CYGWIN_ROOT%-pkg-cache" ^
+ --local-package-dir "%CYGWIN_ROOT%\.pkg-cache" ^
  --no-shortcuts ^
  --no-desktop ^
  --delete-orphans ^
@@ -178,16 +187,57 @@ echo Running Cygwin setup...
  --quiet-mode ^
  --packages dos2unix,wget,%CYGWIN_PACKAGES% || goto :fail
 
+if "%DELETE_CYGWIN_PACKAGE_CACHE%" == "yes" (
+    rd /s /q "%CYGWIN_ROOT%\.pkg-cache"
+)
+
+set Updater_cmd=%INSTALL_ROOT%cygwin-portable-updater.cmd
+echo Creating updater [%Updater_cmd%]...
+(
+	echo @echo off
+    echo set CYGWIN_ROOT=%%~dp0cygwin
+	echo echo.
+	echo.
+	echo echo ###########################################################
+	echo echo # Updating [Cygwin Portable]...
+	echo echo ###########################################################
+	echo echo.
+	echo "%%CYGWIN_ROOT%%\%CYGWIN_SETUP%" --no-admin ^^
+	echo --site %CYGWIN_MIRROR% %CYGWIN_PROXY% ^^
+	echo --root "%%CYGWIN_ROOT%%" ^^
+	echo --local-package-dir "%%CYGWIN_ROOT%%\.pkg-cache" ^^
+	echo --no-shortcuts ^^
+	echo --no-desktop ^^
+	echo --delete-orphans ^^
+	echo --upgrade-also ^^
+	echo --no-replaceonreboot ^^
+	echo --quiet-mode ^|^| goto :fail
+    if "%DELETE_CYGWIN_PACKAGE_CACHE%" == "yes" (
+        echo rd /s /q "%%CYGWIN_ROOT%%\.pkg-cache"
+    )
+	echo echo.
+	echo echo ###########################################################
+    echo echo # Updating [Cygwin Portable] succeeded.
+    echo echo ###########################################################
+	echo timeout /T 60
+	echo goto :eof
+	echo echo.
+	echo :fail
+    echo echo ###########################################################
+    echo echo # Updating [Cygwin Portable] FAILED!
+    echo echo ###########################################################
+	echo timeout /T 60
+	echo exit /1
+) >"%Updater_cmd%" || goto :fail
+
 set Cygwin_bat=%CYGWIN_ROOT%\Cygwin.bat
-if exist "%Cygwin_bat%" (
-    echo Disabling [%Cygwin_bat%]...
+if exist "%CYGWIN_ROOT%\Cygwin.bat" (
+    echo Disabling default Cygwin launcher [%Cygwin_bat%]...
     if exist "%Cygwin_bat%.disabled" (
         del "%Cygwin_bat%.disabled" || goto :fail
     )
     rename %Cygwin_bat% Cygwin.bat.disabled || goto :fail
 )
-
-:configure
 
 set Init_sh=%CYGWIN_ROOT%\portable-init.sh
 echo Creating [%Init_sh%]...
@@ -213,7 +263,7 @@ echo Creating [%Init_sh%]...
     echo # adjust Cygwin packages cache path
     echo #
     echo pkg_cache_dir=$(cygpath -w "$CYGWIN_ROOT/../cygwin-pkg-cache"^)
-    echo sed -i -E "s/.*\\\cygwin-pkg-cache/        ${pkg_cache_dir//\\/\\\\}/" /etc/setup/setup.rc
+    echo sed -i -E "s/.*\\\cygwin-pkg-cache/"$'\t'"${pkg_cache_dir//\\/\\\\}/" /etc/setup/setup.rc
     echo.
     if not "%PROXY_HOST%" == "" (
         echo if [[ $HOSTNAME == "%COMPUTERNAME%" ]]; then
@@ -298,7 +348,7 @@ echo Creating [%Init_sh%]...
 "%CYGWIN_ROOT%\bin\dos2unix" "%Init_sh%" || goto :fail
 
 set Start_cmd=%INSTALL_ROOT%cygwin-portable.cmd
-echo Creating [%Start_cmd%]...
+echo Creating launcher [%Start_cmd%]...
 (
     echo @echo off
     echo set CWD=%%cd%%
@@ -306,7 +356,7 @@ echo Creating [%Start_cmd%]...
     echo set CYGWIN_ROOT=%%~dp0cygwin
     echo.
     echo set PATH=%CYGWIN_PATH%;%%CYGWIN_ROOT%%\bin
-    echo set ALLUSERSPROFILE=%%CYGWIN_ROOT%%.ProgramData
+    echo set ALLUSERSPROFILE=%%CYGWIN_ROOT%%\.ProgramData
     echo set ProgramData=%%ALLUSERSPROFILE%%
     echo set CYGWIN=nodosfilewarning
     echo.
@@ -363,7 +413,7 @@ echo Creating [%Start_cmd%]...
     echo cd "%%CWD%%"
 ) >"%Start_cmd%" || goto :fail
 
-:: launching bash once to initialize user home dir
+:: launching Bash once to initialize user home dir
 call %Start_cmd% whoami
 
 set conemu_config=%INSTALL_ROOT%conemu\ConEmu.xml
@@ -481,7 +531,7 @@ echo ###########################################################
 echo.
 echo Use [%Start_cmd%] to launch Cygwin Portable.
 echo.
-pause
+timeout /T 60
 goto :eof
 
 :fail
@@ -490,8 +540,8 @@ goto :eof
     )
     echo.
     echo ###########################################################
-    echo #Installing [Cygwin Portable] FAILED!
+    echo # Installing [Cygwin Portable] FAILED!
     echo ###########################################################
     echo.
-    pause
+    timeout /T 60
     exit /b 1
