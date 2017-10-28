@@ -44,6 +44,11 @@ set INSTALL_APT_CYG=yes
 :: if set to 'yes' the bash-funk adaptive Bash prompt (https://github.com/vegardit/bash-funk) will be installed automatically
 set INSTALL_BASH_FUNK=yes
 
+:: if set to 'yes' testssl.sh (https://testssl.sh/) will be installed automatically
+set INSTALL_TESTSSL_SH=yes
+:: name of the GIT branch to install from, see https://github.com/drwetter/
+set TESTSSL_GIT_BRANCH=2.9.5
+
 :: use ConEmu based tabbed terminal instead of Mintty based single window terminal, see https://conemu.github.io/
 set INSTALL_CONEMU=yes
 set CON_EMU_OPTIONS=-Title cygwin-portable ^
@@ -156,6 +161,10 @@ if "%INSTALL_CONEMU%" == "yes" (
     set CYGWIN_PACKAGES=mintty,%CYGWIN_PACKAGES%
 )
 
+if "%INSTALL_TESTSSL_SH%" == "yes" (
+    set CYGWIN_PACKAGES=bind-utils,%CYGWIN_PACKAGES%
+)
+
 echo Running Cygwin setup...
 "%CYGWIN_ROOT%\%CYGWIN_SETUP%" --no-admin ^
  --site %CYGWIN_MIRROR% %CYGWIN_PROXY% ^
@@ -264,6 +273,27 @@ echo Creating [%Init_sh%]...
         echo   fi
         echo fi
     )
+    if "%INSTALL_TESTSSL_SH%" == "yes" (
+        echo.
+        echo #
+        echo # Installing testssl.sh if required
+        echo #
+        echo if [[ ! -e /opt ]]; then mkdir /opt; fi
+        echo if [[ ! -e /opt/testssl/testssl.sh ]]; then
+        echo   echo Installing [testssl.sh]...
+        echo   if hash git ^&^>/dev/null; then
+        echo     git clone https://github.com/drwetter/testssl.sh --branch %TESTSSL_GIT_BRANCH% --single-branch /opt/testssl
+        echo   elif hash svn ^&^>/dev/null; then
+        echo     svn checkout https://github.com/drwetter/testssl.sh/branches/%TESTSSL_GIT_BRANCH% /opt/testssl
+        echo   else
+        echo     mkdir /opt/testssl ^&^& \
+        echo     cd /opt/testssl ^&^& \
+        echo     wget -qO- --show-progress https://github.com/drwetter/testssl.sh/tarball/%TESTSSL_GIT_BRANCH% ^| tar -xzv --strip-components 1
+        echo   fi
+		echo   chmod +x /opt/testssl/testssl.sh
+        echo fi
+    )
+
 ) >"%Init_sh%" || goto :fail
 "%CYGWIN_ROOT%\bin\dos2unix" "%Init_sh%" || goto :fail
 
@@ -430,6 +460,15 @@ if "%INSTALL_BASH_FUNK%" == "yes" (
         (
             echo.
             echo source /opt/bash-funk/bash-funk.sh
+        ) >>"%Bashrc_sh%" || goto :fail
+    )
+)
+if "%INSTALL_TESTSSL_SH%" == "yes" (
+    echo Adding testssl.sh to PATH in [/home/%CYGWIN_USERNAME%/.bashrc]...
+    find "testssl" "%Bashrc_sh%" >NUL || (
+        (
+            echo.
+            echo export PATH=$PATH:/opt/testssl
         ) >>"%Bashrc_sh%" || goto :fail
     )
 )
