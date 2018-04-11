@@ -283,14 +283,7 @@ echo Creating [%Init_sh%]...
         echo     wget -O "${conemu_dir}.7z" $conemu_url ^&^& \
         echo     mkdir "$conemu_dir" ^&^& \
         echo     bsdtar -xvf "${conemu_dir}.7z" -C "$conemu_dir" ^&^& \
-        echo     rm "${conemu_dir}.7z" ^&^& \
-        echo     echo "Installing ConEmu Cygwin Connector..." ^&^& \
-        echo     conemu_connector_url="https://github.com$(wget https://github.com/Maximus5/cygwin-connector/releases/latest -O - 2>/dev/null | egrep '/.*/releases/download/.*/.*7z' -o)" ^&^& \
-        echo     echo "Download URL=$conemu_connector_url" ^&^& \
-        echo     wget -O "${conemu_dir}_cygwin_connector.7z" $conemu_connector_url ^&^& \
-        echo     bsdtar -xvf "${conemu_dir}_cygwin_connector.7z" -C "/bin"  --include 'conemu-cyg-*.exe' ^&^& \
-        echo     chmod 755 /bin/conemu-cyg-*.exe ^&^& \
-        echo     rm "${conemu_dir}_cygwin_connector.7z"
+        echo     rm "${conemu_dir}.7z"
         echo fi
     )
     if "%INSTALL_APT_CYG%" == "yes" (
@@ -479,7 +472,7 @@ if "%INSTALL_CONEMU%" == "yes" (
         echo            ^<value name="Flags" type="dword" data="00000005"/^>
         echo            ^<value name="Hotkey" type="dword" data="0000a254"/^>
         echo            ^<value name="GuiArgs" type="string" data=""/^>
-        echo            ^<value name="Cmd1" type="string" data="%%ConEmuDir%%\..\cygwin\bin\conemu-cyg-64.exe -new_console:m:/cygdrive -new_console:p1:C:&quot;%%ConEmuDir%%\..\cygwin\Cygwin.ico&quot;:d:&quot;%%ConEmuDir%%\..\cygwin\home\%CYGWIN_USERNAME%&quot;"/^>
+        echo            ^<value name="Cmd1" type="string" data="%%ConEmuDir%%\ConEmu\conemu-cyg-64.exe -new_console:m:/cygdrive -new_console:p1:C:&quot;%%ConEmuDir%%\..\cygwin\Cygwin.ico&quot;:d:&quot;%%ConEmuDir%%\..\cygwin\home\%CYGWIN_USERNAME%&quot;"/^>
         echo            ^<value name="Active" type="long" data="0"/^>
         echo            ^<value name="Count" type="long" data="1"/^>
         echo        ^</key^>
