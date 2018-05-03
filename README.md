@@ -19,9 +19,9 @@ disabled for non-administrative users via group policies.
 ## Features
 
 * **portable**: you can e.g. install it on an USB sticks and use the same configuration on different computers
-* **256-color multi-tabbed shell**: [ConEmu](https://conemu.github.io/) incl. [Cygwin Connector](https://github.com/Maximus5/cygwin-connector) is pre-configured as terminal by default. Alternatively you can choose to use the single tabbed [Mintty](https://mintty.github.io/) terminal.
-* **command-line package installer**: [apt-cyg](https://github.com/transcode-open/apt-cyg) package manager will be automatically installed
-* **adaptive Bash prompt**: [bash-funk](https://github.com/vegardit/bash-funk) will be automatically installed
+* **256-color multi-tabbed shell**: [ConEmu](https://conemu.github.io/) is pre-configured as terminal by default. Alternatively you can choose to use the single tabbed [Mintty](https://mintty.github.io/) terminal.
+* **command-line package installer**: [apt-cyg](https://github.com/transcode-open/apt-cyg) package manager will be automatically installed (possbile opt-out via config parameter)
+* **adaptive Bash prompt**: [bash-funk](https://github.com/vegardit/bash-funk) will be automatically installed (possbile opt-out via config parameter)
 
 
 ## <a name="install"></a>Installation
