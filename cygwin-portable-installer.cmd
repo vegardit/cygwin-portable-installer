@@ -37,11 +37,11 @@
 set PROXY_HOST=
 set PROXY_PORT=8080
 
+:: change the URL to the closest mirror https://cygwin.com/mirrors.html
+set CYGWIN_MIRROR=http://linux.rz.ruhr-uni-bochum.de/download/cygwin/
+
 :: choose a user name under Cygwin
 set CYGWIN_USERNAME=root
-
-:: change the URL to the closest mirror https://cygwin.com/mirrors.html
-set CYGWIN_MIRROR=http://ftp.inf.tu-dresden.de/software/windows/cygwin32
 
 :: select the packages to be installed automatically via apt-cyg
 set CYGWIN_PACKAGES=bash-completion,bc,curl,expect,git,git-svn,gnupg,inetutils,mc,nc,openssh,openssl,perl,python,ssh-pageant,subversion,unzip,vim,zip
@@ -57,7 +57,7 @@ set INSTALL_BASH_FUNK=yes
 
 :: if set to 'yes' testssl.sh (https://testssl.sh/) will be installed automatically
 set INSTALL_TESTSSL_SH=yes
-:: name of the GIT branch to install from, see https://github.com/drwetter/
+:: name of the GIT branch to install from, see https://github.com/drwetter/testssl.sh
 set TESTSSL_GIT_BRANCH=2.9.5
 
 :: use ConEmu based tabbed terminal instead of Mintty based single window terminal, see https://conemu.github.io/
