@@ -472,7 +472,7 @@ if "%INSTALL_CONEMU%" == "yes" (
         echo            ^<value name="Flags" type="dword" data="00000005"/^>
         echo            ^<value name="Hotkey" type="dword" data="0000a254"/^>
         echo            ^<value name="GuiArgs" type="string" data=""/^>
-        echo            ^<value name="Cmd1" type="string" data="%%ConEmuDir%%\ConEmu\conemu-cyg-64.exe -new_console:m:/cygdrive -new_console:p1:C:&quot;%%ConEmuDir%%\..\cygwin\Cygwin.ico&quot;:d:&quot;%%ConEmuDir%%\..\cygwin\home\%CYGWIN_USERNAME%&quot;"/^>
+        echo            ^<value name="Cmd1" type="string" data="%%ConEmuBaseDirShort%%\conemu-cyg-64.exe -new_console:m:/cygdrive -new_console:p1:C:&quot;%%ConEmuDir%%\..\cygwin\Cygwin.ico&quot;:d:&quot;%%ConEmuDir%%\..\cygwin\home\%CYGWIN_USERNAME%&quot;"/^>
         echo            ^<value name="Active" type="long" data="0"/^>
         echo            ^<value name="Count" type="long" data="1"/^>
         echo        ^</key^>
