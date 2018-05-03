@@ -33,6 +33,10 @@
 
 :: You can customize the following variables to your needs before running the batch file:
 
+:: set proxy if required (unfortunately Cygwin setup.exe does not have commandline options to specify proxy user credentials)
+set PROXY_HOST=
+set PROXY_PORT=8080
+
 :: choose a user name under Cygwin
 set CYGWIN_USERNAME=root
 
@@ -63,10 +67,6 @@ set CON_EMU_OPTIONS=-Title cygwin-portable ^
 
 :: add more path if required, but at the cost of runtime performance (e.g. slower forks)
 set CYGWIN_PATH=%%SystemRoot%%\system32;%%SystemRoot%%
-
-:: set proxy if required (unfortunately Cygwin setup.exe does not have commandline options to specify proxy user credentials)
-set PROXY_HOST=
-set PROXY_PORT=8080
 
 :: set Mintty options, see https://cdn.rawgit.com/mintty/mintty/master/docs/mintty.1.html#CONFIGURATION
 set MINTTY_OPTIONS=--Title cygwin-portable ^
