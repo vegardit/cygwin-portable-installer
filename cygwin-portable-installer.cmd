@@ -38,13 +38,13 @@ set PROXY_HOST=
 set PROXY_PORT=8080
 
 :: change the URL to the closest mirror https://cygwin.com/mirrors.html
-set CYGWIN_MIRROR=http://linux.rz.ruhr-uni-bochum.de/download/cygwin/
+set CYGWIN_MIRROR=http://linux.rz.ruhr-uni-bochum.de/download/cygwin
 
 :: choose a user name under Cygwin
 set CYGWIN_USERNAME=root
 
 :: select the packages to be installed automatically via apt-cyg
-set CYGWIN_PACKAGES=bash-completion,bc,curl,expect,git,git-svn,gnupg,inetutils,mc,nc,openssh,openssl,perl,python,ssh-pageant,subversion,unzip,vim,zip
+set CYGWIN_PACKAGES=bash-completion,bc,curl,expect,git,git-svn,gnupg,inetutils,mc,nc,openssh,openssl,perl,python,pv,ssh-pageant,subversion,unzip,vim,zip
 
 :: if set to 'yes' the local package cache created by cygwin setup will be deleted after installation/update
 set DELETE_CYGWIN_PACKAGE_CACHE=yes
