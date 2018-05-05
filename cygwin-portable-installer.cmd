@@ -353,7 +353,7 @@ echo Creating launcher [%Start_cmd%]...
     echo    set "ADB_PATH=%%%%~dp$PATH:i"
     echo ^)
     echo.
-    echo set PATH=%CYGWIN_PATH%;%%CYGWIN_ROOT%%\bin;%ADB_PATH%
+    echo set PATH=%CYGWIN_PATH%;%%CYGWIN_ROOT%%\bin;%%ADB_PATH%%
     echo set ALLUSERSPROFILE=%%CYGWIN_ROOT%%\.ProgramData
     echo set ProgramData=%%ALLUSERSPROFILE%%
     echo set CYGWIN=nodosfilewarning
