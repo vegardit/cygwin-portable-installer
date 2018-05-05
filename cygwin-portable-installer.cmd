@@ -344,11 +344,16 @@ set Start_cmd=%INSTALL_ROOT%cygwin-portable.cmd
 echo Creating launcher [%Start_cmd%]...
 (
     echo @echo off
+    echo setlocal enabledelayedexpansion
     echo set CWD=%%cd%%
     echo set CYGWIN_DRIVE=%%~d0
     echo set CYGWIN_ROOT=%%~dp0cygwin
     echo.
-    echo set PATH=%CYGWIN_PATH%;%%CYGWIN_ROOT%%\bin
+    echo for %%%%i in ^(adb.exe^) do ^(
+    echo    set "ADB_PATH=%%%%~dp$PATH:i"
+    echo ^)
+    echo.
+    echo set PATH=%CYGWIN_PATH%;%%CYGWIN_ROOT%%\bin;%ADB_PATH%
     echo set ALLUSERSPROFILE=%%CYGWIN_ROOT%%\.ProgramData
     echo set ProgramData=%%ALLUSERSPROFILE%%
     echo set CYGWIN=nodosfilewarning
