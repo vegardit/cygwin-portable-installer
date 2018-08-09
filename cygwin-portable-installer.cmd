@@ -306,7 +306,7 @@ echo Creating [%Init_sh%]...
         echo if [[ ! -e /opt/bash-funk/bash-funk.sh ]]; then
         echo   echo Installing [bash-funk]...
         echo   if hash git ^&^>/dev/null; then
-        echo     git clone https://github.com/vegardit/bash-funk --branch master --single-branch /opt/bash-funk
+        echo     git clone https://github.com/vegardit/bash-funk --branch master --single-branch --depth 1 --shallow-submodules /opt/bash-funk
         echo   elif hash svn ^&^>/dev/null; then
         echo     svn checkout https://github.com/vegardit/bash-funk/trunk /opt/bash-funk
         echo   else
@@ -325,7 +325,7 @@ echo Creating [%Init_sh%]...
         echo if [[ ! -e /opt/testssl/testssl.sh ]]; then
         echo   echo Installing [testssl.sh]...
         echo   if hash git ^&^>/dev/null; then
-        echo     git clone https://github.com/drwetter/testssl.sh --branch %TESTSSL_GIT_BRANCH% --single-branch /opt/testssl
+        echo     git clone https://github.com/drwetter/testssl.sh --branch %TESTSSL_GIT_BRANCH% --single-branch --depth 1 --shallow-submodules /opt/testssl
         echo   elif hash svn ^&^>/dev/null; then
         echo     svn checkout https://github.com/drwetter/testssl.sh/branches/%TESTSSL_GIT_BRANCH% /opt/testssl
         echo   else
