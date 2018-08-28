@@ -153,7 +153,7 @@ if "%PROCESSOR_ARCHITEW6432%" == "AMD64" (
 if exist "%CYGWIN_ROOT%\%CYGWIN_SETUP%" (
     del "%CYGWIN_ROOT%\%CYGWIN_SETUP%" || goto :fail
 )
-cscript //Nologo %DOWNLOADER% http://cygwin.org/%CYGWIN_SETUP% "%CYGWIN_ROOT%\%CYGWIN_SETUP%" || goto :fail
+cscript //Nologo %DOWNLOADER% https://cygwin.org/%CYGWIN_SETUP% "%CYGWIN_ROOT%\%CYGWIN_SETUP%" || goto :fail
 del "%DOWNLOADER%"
 
 :: Cygwin command line options: https://cygwin.com/faq/faq.html#faq.setup.cli
