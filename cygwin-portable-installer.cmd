@@ -24,6 +24,7 @@
 :: - apt-cyg (cygwin command-line package manager, see https://github.com/transcode-open/apt-cyg)
 :: - bash-funk (Bash toolbox and adaptive Bash prompt, see https://github.com/vegardit/bash-funk)
 :: - ConEmu (multi-tabbed terminal, https://conemu.github.io/)
+:: - Ansible (deployment automation tool, see https://github.com/ansible/ansible)
 :: - testssl.sh (command line tool to check SSL/TLS configurations of servers, see https://testssl.sh/)
 
 
@@ -55,9 +56,13 @@ set INSTALL_APT_CYG=yes
 :: if set to 'yes' the bash-funk adaptive Bash prompt (https://github.com/vegardit/bash-funk) will be installed automatically
 set INSTALL_BASH_FUNK=yes
 
+:: if set to 'yes' Ansible (https://github.com/ansible/ansible) will be installed automatically
+set INSTALL_ANSIBLE=yes
+set ANSIBLE_GIT_BRANCH=stable-2.7
+
 :: if set to 'yes' testssl.sh (https://testssl.sh/) will be installed automatically
 set INSTALL_TESTSSL_SH=yes
-:: name of the GIT branch to install from, see https://github.com/drwetter/testssl.sh
+:: name of the GIT branch to install from, see https://github.com/drwetter/testssl.sh/
 set TESTSSL_GIT_BRANCH=2.9.5
 
 :: use ConEmu based tabbed terminal instead of Mintty based single window terminal, see https://conemu.github.io/
@@ -163,6 +168,10 @@ if "%PROXY_HOST%" == "" (
     set CYGWIN_PROXY=--proxy "%PROXY_HOST%:%PROXY_PORT%"
 )
 
+if "%INSTALL_ANSIBLE%" == "yes" (
+    set CYGWIN_PACKAGES=git,openssh,python-jinja2,python-six,python-yaml,%CYGWIN_PACKAGES%
+)
+
 :: if conemu install is selected we need to be able to extract 7z archives, otherwise we need to install mintty
 if "%INSTALL_CONEMU%" == "yes" (
     set CYGWIN_PACKAGES=bsdtar,%CYGWIN_PACKAGES%
@@ -173,6 +182,7 @@ if "%INSTALL_CONEMU%" == "yes" (
 if "%INSTALL_TESTSSL_SH%" == "yes" (
     set CYGWIN_PACKAGES=bind-utils,%CYGWIN_PACKAGES%
 )
+
 
 echo Running Cygwin setup...
 "%CYGWIN_ROOT%\%CYGWIN_SETUP%" --no-admin ^
@@ -277,7 +287,9 @@ echo Creating [%Init_sh%]...
         echo #
         echo conemu_dir=$(cygpath -w "$CYGWIN_ROOT/../conemu"^)
         echo if [[ ! -e $conemu_dir ]]; then
-        echo     echo "Installing ConEmu..."
+        echo     echo "*******************************************************************************"
+        echo     echo "* Installing ConEmu..."
+        echo     echo "*******************************************************************************"
         echo     conemu_url="https://github.com$(wget https://github.com/Maximus5/ConEmu/releases/latest -O - 2>/dev/null | egrep '/.*/releases/download/.*/.*7z' -o)" ^&^& \
         echo     echo "Download URL=$conemu_url" ^&^& \
         echo     wget -O "${conemu_dir}.7z" $conemu_url ^&^& \
@@ -286,12 +298,30 @@ echo Creating [%Init_sh%]...
         echo     rm "${conemu_dir}.7z"
         echo fi
     )
+    if "%INSTALL_ANSIBLE%" == "yes" (
+        echo.
+        echo #
+        echo # Installing Ansible if required
+        echo #
+        echo export PYTHONHOME=/usr/ PYTHONPATH=/usr/lib/python2.7 # workaround for "ImportError: No module named site" when Python for Windows is installed too
+        echo export PATH=$PATH:/opt/ansible/bin
+        echo export PYTHONPATH=$PYTHONPATH:/opt/ansible/lib
+        echo if ! hash ansible 2^>/dev/null; then
+        echo     echo "*******************************************************************************"
+        echo     echo "* Installing [Ansible - %ANSIBLE_GIT_BRANCH%]..."
+        echo     echo "*******************************************************************************"
+        echo     git clone https://github.com/ansible/ansible --branch %ANSIBLE_GIT_BRANCH% --single-branch --depth 1 --shallow-submodules /opt/ansible
+        echo fi
+        echo.
+    )
     if "%INSTALL_APT_CYG%" == "yes" (
         echo #
         echo # Installing apt-cyg package manager if required
         echo #
         echo if [[ ! -x /usr/local/bin/apt-cyg ]]; then
-        echo     echo "Installing apt-cyg..."
+        echo     echo "*******************************************************************************"
+        echo     echo "* Installing apt-cyg..."
+        echo     echo "*******************************************************************************"
         echo     wget -O /usr/local/bin/apt-cyg https://raw.githubusercontent.com/transcode-open/apt-cyg/master/apt-cyg
         echo     chmod +x /usr/local/bin/apt-cyg
         echo fi
@@ -304,16 +334,18 @@ echo Creating [%Init_sh%]...
         echo #
         echo if [[ ! -e /opt ]]; then mkdir /opt; fi
         echo if [[ ! -e /opt/bash-funk/bash-funk.sh ]]; then
-        echo   echo Installing [bash-funk]...
-        echo   if hash git ^&^>/dev/null; then
-        echo     git clone https://github.com/vegardit/bash-funk --branch master --single-branch --depth 1 --shallow-submodules /opt/bash-funk
-        echo   elif hash svn ^&^>/dev/null; then
-        echo     svn checkout https://github.com/vegardit/bash-funk/trunk /opt/bash-funk
-        echo   else
-        echo     mkdir /opt/bash-funk ^&^& \
-        echo     cd /opt/bash-funk ^&^& \
-        echo     wget -qO- --show-progress https://github.com/vegardit/bash-funk/tarball/master ^| tar -xzv --strip-components 1
-        echo   fi
+        echo     echo "*******************************************************************************"
+        echo     echo "* Installing [bash-funk]..."
+        echo     echo "*******************************************************************************"
+        echo     if hash git ^&^>/dev/null; then
+        echo         git clone https://github.com/vegardit/bash-funk --branch master --single-branch --depth 1 --shallow-submodules /opt/bash-funk
+        echo     elif hash svn ^&^>/dev/null; then
+        echo         svn checkout https://github.com/vegardit/bash-funk/trunk /opt/bash-funk
+        echo     else
+        echo         mkdir /opt/bash-funk ^&^& \
+        echo         cd /opt/bash-funk ^&^& \
+        echo         wget -qO- --show-progress https://github.com/vegardit/bash-funk/tarball/master ^| tar -xzv --strip-components 1
+        echo     fi
         echo fi
     )
     if "%INSTALL_TESTSSL_SH%" == "yes" (
@@ -323,17 +355,19 @@ echo Creating [%Init_sh%]...
         echo #
         echo if [[ ! -e /opt ]]; then mkdir /opt; fi
         echo if [[ ! -e /opt/testssl/testssl.sh ]]; then
-        echo   echo Installing [testssl.sh]...
-        echo   if hash git ^&^>/dev/null; then
-        echo     git clone https://github.com/drwetter/testssl.sh --branch %TESTSSL_GIT_BRANCH% --single-branch --depth 1 --shallow-submodules /opt/testssl
-        echo   elif hash svn ^&^>/dev/null; then
-        echo     svn checkout https://github.com/drwetter/testssl.sh/branches/%TESTSSL_GIT_BRANCH% /opt/testssl
-        echo   else
-        echo     mkdir /opt/testssl ^&^& \
-        echo     cd /opt/testssl ^&^& \
-        echo     wget -qO- --show-progress https://github.com/drwetter/testssl.sh/tarball/%TESTSSL_GIT_BRANCH% ^| tar -xzv --strip-components 1
-        echo   fi
-		echo   chmod +x /opt/testssl/testssl.sh
+        echo     echo "*******************************************************************************"
+        echo     echo "* Installing [testssl.sh - %TESTSSL_GIT_BRANCH%]..."
+        echo     echo "*******************************************************************************"
+        echo     if hash git ^&^>/dev/null; then
+        echo         git clone https://github.com/drwetter/testssl.sh --branch %TESTSSL_GIT_BRANCH% --single-branch --depth 1 --shallow-submodules /opt/testssl
+        echo     elif hash svn ^&^>/dev/null; then
+        echo         svn checkout https://github.com/drwetter/testssl.sh/branches/%TESTSSL_GIT_BRANCH% /opt/testssl
+        echo     else
+        echo         mkdir /opt/testssl ^&^& \
+        echo         cd /opt/testssl ^&^& \
+        echo         wget -qO- --show-progress https://github.com/drwetter/testssl.sh/tarball/%TESTSSL_GIT_BRANCH% ^| tar -xzv --strip-components 1
+        echo     fi
+		echo     chmod +x /opt/testssl/testssl.sh
         echo fi
     )
 
@@ -493,6 +527,7 @@ if not "%CYGWIN_PACKAGES%" == "%CYGWIN_PACKAGES:ssh-pageant=%" (
     REM https://github.com/cuviper/ssh-pageant
     echo eval $(/usr/bin/ssh-pageant -r -a "/tmp/.ssh-pageant-$USERNAME"^) >>"%Bashrc_sh%" || goto :fail
 )
+
 if not "%PROXY_HOST%" == "" (
     echo Adding proxy settings for host [%COMPUTERNAME%] to [/home/%CYGWIN_USERNAME%/.bashrc]...
     find "export http_proxy" "%Bashrc_sh%" >NUL || (
@@ -513,6 +548,17 @@ if "%INSTALL_BASH_FUNK%" == "yes" (
         (
             echo.
             echo source /opt/bash-funk/bash-funk.sh
+        ) >>"%Bashrc_sh%" || goto :fail
+    )
+)
+if "%INSTALL_ANSIBLE%" == "yes" (
+    echo Adding Ansible to PATH in [/home/%CYGWIN_USERNAME%/.bashrc]...
+    find "ansible" "%Bashrc_sh%" >NUL || (
+        (
+            echo.
+            echo export PYTHONHOME=/usr/ PYTHONPATH=/usr/lib/python2.7 # workaround for "ImportError: No module named site" when Python for Windows is installed too
+            echo export PYTHONPATH=$PYTHONPATH:/opt/ansible/lib
+            echo export PATH=$PATH:/opt/ansible/bin
         ) >>"%Bashrc_sh%" || goto :fail
     )
 )
