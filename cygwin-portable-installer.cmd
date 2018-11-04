@@ -542,15 +542,6 @@ if not "%PROXY_HOST%" == "" (
         echo fi
     ) >>"%Bashrc_sh%" || goto :fail
 )
-if "%INSTALL_BASH_FUNK%" == "yes" (
-    echo Adding bash-funk to [/home/%CYGWIN_USERNAME%/.bashrc]...
-    find "bash-funk" "%Bashrc_sh%" >NUL || (
-        (
-            echo.
-            echo source /opt/bash-funk/bash-funk.sh
-        ) >>"%Bashrc_sh%" || goto :fail
-    )
-)
 if "%INSTALL_ANSIBLE%" == "yes" (
     echo Adding Ansible to PATH in [/home/%CYGWIN_USERNAME%/.bashrc]...
     find "ansible" "%Bashrc_sh%" >NUL || (
@@ -568,6 +559,15 @@ if "%INSTALL_TESTSSL_SH%" == "yes" (
         (
             echo.
             echo export PATH=$PATH:/opt/testssl
+        ) >>"%Bashrc_sh%" || goto :fail
+    )
+)
+if "%INSTALL_BASH_FUNK%" == "yes" (
+    echo Adding bash-funk to [/home/%CYGWIN_USERNAME%/.bashrc]...
+    find "bash-funk" "%Bashrc_sh%" >NUL || (
+        (
+            echo.
+            echo source /opt/bash-funk/bash-funk.sh
         ) >>"%Bashrc_sh%" || goto :fail
     )
 )
