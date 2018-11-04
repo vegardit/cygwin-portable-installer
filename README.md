@@ -1,5 +1,7 @@
 # cygwin-portable-installer
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE.txt)
+
 1. [What is it?](#what-is-it)
 1. [Features](#features)
 1. [Installation](#install)
