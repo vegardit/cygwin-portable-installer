@@ -3,6 +3,7 @@
 1. [What is it?](#what-is-it)
 1. [Features](#features)
 1. [Installation](#install)
+1. [Update](#update)
 1. [License](#license)
 
 
@@ -53,7 +54,7 @@ disabled for non-administrative users via group policies.
     ![Launch Script](docs/img/launch_script.png)
 
 
-## <a name="install"></a>Updating your installation
+## <a name="update"></a>Updating your installation
 
 To update installed Cygwin packages execute the generated `cygwin-portable-updater.cmd` file.
 
