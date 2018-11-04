@@ -13,7 +13,7 @@ cygwin-portable-installer is a self-containing Windows batch file to perform an 
 The installer has been implemented as a Batch script and not PowerShell script because in some corporate environments execution of PowerShell scripts is
 disabled for non-administrative users via group policies.
 
-![screenshot](screenshot.png)
+![Tabbed Terminal](docs/img/tabbed_terminal.png)
 
 
 ## Features
@@ -29,9 +29,17 @@ disabled for non-administrative users via group policies.
 
 ## <a name="install"></a>Installation
 
-1. Create a local empty directory where Cygwin shall be installed, e.g. `C:\apps\cygwin-portable`
-1. Download the [cygwin-portable-installer.cmd](https://github.com/vegardit/cygwin-portable-installer/blob/master/cygwin-portable-installer.cmd) file into that directory.
-1. (Optional) Open the file in an text editor and adjust the configuration variables to e.g. set an HTTP Proxy, change the set of pre-installed Cygwin packages, select the terminal (ConEmu or Mintty).
+1. Get a copy of the installer using one of these ways:
+   * Using old-school **Copy & Paste**:
+      1. Create a local empty directory where Cygwin shall be installed, e.g. `C:\apps\cygwin-portable`
+      1. Download the [cygwin-portable-installer.cmd](cygwin-portable-installer.cmd) file into that directory.
+   * Using **Git**:
+      1. Clone the project into a local directory, e.g.
+         ```batch
+         git clone https://github.com/vegardit/cygwin-portable-installer --single-branch --branch master --depth 1 C:\apps\cygwin-portable
+         ```
+
+1. (Optional) Open the file [cygwin-portable-installer.cmd](cygwin-portable-installer.cmd) in a text editor and adjust the configuration variables to e.g. set an HTTP Proxy, change the set of pre-installed Cygwin packages, select the terminal (ConEmu or Mintty), etc.
 1. Execute the `cygwin-portable-installer.cmd`. This will automatically:
     1. download the 32 or 64bit Cygwin setup.exe depending on your OS
     1. install [Cygwin](http://cygwin.org) with the pre-selected set of packages
@@ -42,8 +50,14 @@ disabled for non-administrative users via group policies.
     1. install [Ansible](https://github.com/ansible/ansible)
     1. install [testssl.sh](https://testssl.sh/)
 1. Now you can launch your portable Cygwin environment using the newly created `cygwin-portable.cmd` batch file.
+    ![Launch Script](docs/img/launch_script.png)
+
+
+## <a name="install"></a>Updating your installation
+
+To update installed Cygwin packages execute the generated `cygwin-portable-updater.cmd` file.
 
 
 ## <a name="license"></a>License
 
-All files are released under the [Apache License 2.0](https://github.com/vegardit/bash-funk/blob/master/LICENSE.txt).
+All files are released under the [Apache License 2.0](LICENSE.txt).
