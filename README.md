@@ -23,7 +23,7 @@ disabled for non-administrative users via group policies.
 
 * **portable**: you can e.g. install it on an USB sticks and use the same configuration on different computers
 * **256-color multi-tabbed shell**: [ConEmu](https://conemu.github.io/) is pre-configured as terminal by default. Alternatively you can choose to use the single tabbed [Mintty](https://mintty.github.io/) terminal.
-* **command-line package installer**: [apt-cyg](https://github.com/transcode-open/apt-cyg) package manager will be automatically installed (opt-out via config parameter is possible)
+* **command-line package installer**: [apt-cyg](https://github.com/kou1okada/apt-cyg) package manager will be automatically installed (opt-out via config parameter is possible)
 * **adaptive Bash prompt**: [bash-funk](https://github.com/vegardit/bash-funk) will be automatically installed (opt-out via config parameter is possible)
 * additional tools (opt-out via config parameter is possible):
     * [Ansible](https://github.com/ansible/ansible): deployment automation tool
@@ -48,7 +48,7 @@ disabled for non-administrative users via group policies.
     1. install [Cygwin](http://cygwin.org) with the pre-selected set of packages
     1. install the [ConEmu](https://conemu.github.io/) tabbed terminal
     1. create an init scripts that will keep the installation portable
-    1. install the [apt-cyg](https://github.com/transcode-open/apt-cyg) command-line package manager
+    1. install the [apt-cyg](https://github.com/kou1okada/apt-cyg) command-line package manager
     1. install the [bash-funk](https://github.com/vegardit/bash-funk) Bash toolbox with it's adaptive Bash prompt
     1. install [Ansible](https://github.com/ansible/ansible)
     1. install [testssl.sh](https://testssl.sh/)

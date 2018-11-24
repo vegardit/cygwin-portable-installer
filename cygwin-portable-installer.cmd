@@ -21,7 +21,7 @@
 :: =====
 :: This self-contained Windows batch file creates a portable Cygwin (https://cygwin.com/mirrors.html) installation.
 :: By default it automatically installs :
-:: - apt-cyg (cygwin command-line package manager, see https://github.com/transcode-open/apt-cyg)
+:: - apt-cyg (cygwin command-line package manager, see https://github.com/kou1okada/apt-cyg)
 :: - bash-funk (Bash toolbox and adaptive Bash prompt, see https://github.com/vegardit/bash-funk)
 :: - ConEmu (multi-tabbed terminal, https://conemu.github.io/)
 :: - Ansible (deployment automation tool, see https://github.com/ansible/ansible)
@@ -50,7 +50,7 @@ set CYGWIN_PACKAGES=bash-completion,bc,curl,expect,git,git-svn,gnupg,inetutils,m
 :: if set to 'yes' the local package cache created by cygwin setup will be deleted after installation/update
 set DELETE_CYGWIN_PACKAGE_CACHE=yes
 
-:: if set to 'yes' the apt-cyg command line package manager (https://github.com/transcode-open/apt-cyg) will be installed automatically
+:: if set to 'yes' the apt-cyg command line package manager (https://github.com/kou1okada/apt-cyg) will be installed automatically
 set INSTALL_APT_CYG=yes
 
 :: if set to 'yes' the bash-funk adaptive Bash prompt (https://github.com/vegardit/bash-funk) will be installed automatically
@@ -166,6 +166,10 @@ if "%PROXY_HOST%" == "" (
     set CYGWIN_PROXY=
 ) else (
     set CYGWIN_PROXY=--proxy "%PROXY_HOST%:%PROXY_PORT%"
+)
+
+if "%INSTALL_APT_CYG%" == "yes" (
+   set CYGWIN_PACKAGES=wget,ca-certificates,gnupg,%CYGWIN_PACKAGES%
 )
 
 if "%INSTALL_ANSIBLE%" == "yes" (
@@ -322,7 +326,7 @@ echo Creating [%Init_sh%]...
         echo     echo "*******************************************************************************"
         echo     echo "* Installing apt-cyg..."
         echo     echo "*******************************************************************************"
-        echo     wget -O /usr/local/bin/apt-cyg https://raw.githubusercontent.com/transcode-open/apt-cyg/master/apt-cyg
+        echo     wget -O /usr/local/bin/apt-cyg https://raw.githubusercontent.com/kou1okada/apt-cyg/master/apt-cyg
         echo     chmod +x /usr/local/bin/apt-cyg
         echo fi
         echo.
