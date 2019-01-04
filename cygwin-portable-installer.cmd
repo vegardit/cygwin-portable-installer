@@ -38,6 +38,9 @@
 set PROXY_HOST=
 set PROXY_PORT=8080
 
+:: define a operating system architecture use "32-bit" or "64-bit" like provided by wmic (see https://answers.microsoft.com/en-us/windows/forum/windows_10-other_settings/how-to-tell-if-my-windows-10-is-32-bit-or-64-bit/44fb92ad-8296-4fc1-af79-9b7a717f761d) to override automatically detected value
+set OS_ARCH_TYPE=
+
 :: change the URL to the closest mirror https://cygwin.com/mirrors.html
 set CYGWIN_MIRROR=http://linux.rz.ruhr-uni-bochum.de/download/cygwin
 
@@ -145,14 +148,26 @@ if "%PROXY_HOST%" == "" (
 ) >"%DOWNLOADER%" || goto :fail
 
 :: download Cygwin 32 or 64 setup exe depending on detected architecture
-if "%PROCESSOR_ARCHITEW6432%" == "AMD64" (
-    set CYGWIN_SETUP=setup-x86_64.exe
-) else (
-    if "%PROCESSOR_ARCHITECTURE%" == "x86" (
-        set CYGWIN_SETUP=setup-x86.exe
+if "%OS_ARCH_TYPE%" == "" (
+  for /f %%i in ('wmic os get osarchitecture ^| findstr /C:-bit') do (
+    if not %ERRORLEVEL% == 0 (
+:: detection using wmic was not possible due to unprivileged user or format change(result = error message)
+       echo "Could not detect the architecture (32-bit or 64-bit) of your operating system, please configure OS_ARCH_TYPE manually in this script before execution"
+	   goto :fail
     ) else (
-        set CYGWIN_SETUP=setup-x86_64.exe
-    )
+       set OS_ARCH_TYPE=%%i
+    )	
+  )
+)
+:: eval os architecture
+if "%OS_ARCH_TYPE%" == "64-bit" (
+   set CYGWIN_SETUP=setup-x86_64.exe
+) else (
+   if "%OS_ARCH_TYPE%" == "32-bit" (
+      set CYGWIN_SETUP=setup-x86.exe
+   ) else (
+      set CYGWIN_SETUP=setup-x86_64.exe
+   )
 )
 
 if exist "%CYGWIN_ROOT%\%CYGWIN_SETUP%" (
