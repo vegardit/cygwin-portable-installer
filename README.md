@@ -27,6 +27,7 @@ disabled for non-administrative users via group policies.
 * **adaptive Bash prompt**: [bash-funk](https://github.com/vegardit/bash-funk) will be automatically installed (opt-out via config parameter is possible)
 * additional tools (opt-out via config parameter is possible):
     * [Ansible](https://github.com/ansible/ansible): deployment automation tool
+    * [AWS CLI](https://github.com/aws/aws-cli): AWS cloud commandline tool
     * [testssl.sh](https://testssl.sh/): command line tool to check SSL/TLS configurations of servers
 
 
@@ -51,6 +52,7 @@ disabled for non-administrative users via group policies.
     1. install the [apt-cyg](https://github.com/kou1okada/apt-cyg) command-line package manager
     1. install the [bash-funk](https://github.com/vegardit/bash-funk) Bash toolbox with it's adaptive Bash prompt
     1. install [Ansible](https://github.com/ansible/ansible)
+    1. install [AWS CLI](https://github.com/aws/aws-cli)
     1. install [testssl.sh](https://testssl.sh/)
 1. Now you can launch your portable Cygwin environment using the newly created `cygwin-portable.cmd` batch file.
     ![Launch Script](docs/img/launch_script.png)

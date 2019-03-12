@@ -25,6 +25,7 @@
 :: - bash-funk (Bash toolbox and adaptive Bash prompt, see https://github.com/vegardit/bash-funk)
 :: - ConEmu (multi-tabbed terminal, https://conemu.github.io/)
 :: - Ansible (deployment automation tool, see https://github.com/ansible/ansible)
+:: - AWS CLI (AWS cloud command line tool, see https://github.com/aws/aws-cli)
 :: - testssl.sh (command line tool to check SSL/TLS configurations of servers, see https://testssl.sh/)
 
 
@@ -62,6 +63,9 @@ set INSTALL_BASH_FUNK=yes
 :: if set to 'yes' Ansible (https://github.com/ansible/ansible) will be installed automatically
 set INSTALL_ANSIBLE=yes
 set ANSIBLE_GIT_BRANCH=stable-2.7
+
+:: if set to 'yes' AWS CLI (https://github.com/aws/aws-cli) will be installed automatically
+set INSTALL_AWS_CLI=yes
 
 :: if set to 'yes' testssl.sh (https://testssl.sh/) will be installed automatically
 set INSTALL_TESTSSL_SH=yes
@@ -317,8 +321,9 @@ echo Creating [%Init_sh%]...
     if "%INSTALL_ANSIBLE%" == "yes" (
         echo.
         echo #
-        echo # Installing Ansible if required
+        echo # Installing Ansible if not yet installed
         echo #
+        echo if [[ ! -e /opt ]]; then mkdir /opt; fi
         echo export PYTHONHOME=/usr/ PYTHONPATH=/usr/lib/python2.7 # workaround for "ImportError: No module named site" when Python for Windows is installed too
         echo export PATH=$PATH:/opt/ansible/bin
         echo export PYTHONPATH=$PYTHONPATH:/opt/ansible/lib
@@ -330,9 +335,28 @@ echo Creating [%Init_sh%]...
         echo fi
         echo.
     )
+    if "%INSTALL_AWS_CLI%" == "yes" (
+        echo.
+        echo #
+        echo # Installing AWS CLI if not yet installed
+        echo #
+        echo if ! hash aws 2^>/dev/null; then
+        echo     echo "*******************************************************************************"
+        echo     echo "* Installing [AWS CLI]..."
+        echo     echo "*******************************************************************************"
+        echo     python -m ensurepip --default-pip
+        echo     # remove potential left-overs of previous installation
+        echo     rm -rf awscli-bundle.zip awscli-bundle /usr/bin/aws.cmd /usr/bin/aws /usr/local/aws /usr/local/bin/aws
+        echo     curl https://s3.amazonaws.com/aws-cli/awscli-bundle.zip -o awscli-bundle.zip
+        echo     unzip awscli-bundle.zip
+        echo     awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+        echo     rm -rf awscli-bundle awscli-bundle.zip
+        echo fi
+        echo.
+    )
     if "%INSTALL_APT_CYG%" == "yes" (
         echo #
-        echo # Installing apt-cyg package manager if required
+        echo # Installing apt-cyg package manager if not yet installed
         echo #
         echo if [[ ! -x /usr/local/bin/apt-cyg ]]; then
         echo     echo "*******************************************************************************"
@@ -346,7 +370,7 @@ echo Creating [%Init_sh%]...
     if "%INSTALL_BASH_FUNK%" == "yes" (
         echo.
         echo #
-        echo # Installing bash-funk if required
+        echo # Installing bash-funk if not yet installed
         echo #
         echo if [[ ! -e /opt ]]; then mkdir /opt; fi
         echo if [[ ! -e /opt/bash-funk/bash-funk.sh ]]; then
@@ -367,7 +391,7 @@ echo Creating [%Init_sh%]...
     if "%INSTALL_TESTSSL_SH%" == "yes" (
         echo.
         echo #
-        echo # Installing testssl.sh if required
+        echo # Installing testssl.sh if not yet installed
         echo #
         echo if [[ ! -e /opt ]]; then mkdir /opt; fi
         echo if [[ ! -e /opt/testssl/testssl.sh ]]; then
