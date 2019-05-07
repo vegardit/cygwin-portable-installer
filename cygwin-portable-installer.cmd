@@ -266,7 +266,7 @@ if exist "%CYGWIN_ROOT%\Cygwin.bat" (
     if exist "%Cygwin_bat%.disabled" (
         del "%Cygwin_bat%.disabled" || goto :fail
     )
-    rename %Cygwin_bat% Cygwin.bat.disabled || goto :fail
+    rename "%Cygwin_bat%" Cygwin.bat.disabled || goto :fail
 )
 
 set Init_sh=%CYGWIN_ROOT%\portable-init.sh
@@ -450,11 +450,8 @@ echo Creating launcher [%Start_cmd%]...
     echo     echo #    see https://cygwin.com/cygwin-ug-net/using.html#mount-table
     echo     echo.
     echo     echo # noacl = disable Cygwin's - apparently broken - special ACL treatment which prevents apt-cyg and other programs from working
-    echo     echo %%CYGWIN_ROOT%%/bin  /usr/bin ntfs binary,auto,noacl           0  0
-    echo     echo %%CYGWIN_ROOT%%/lib  /usr/lib ntfs binary,auto,noacl           0  0
-    echo     echo %%CYGWIN_ROOT%%      /        ntfs override,binary,auto,noacl  0  0
     echo     echo none /cygdrive cygdrive binary,noacl,posix=0,user 0 0
-    echo ^) ^> %%CYGWIN_ROOT%%\etc\fstab
+    echo ^) ^> "%%CYGWIN_ROOT%%\etc\fstab"
     echo.
     echo %%CYGWIN_DRIVE%%
     echo chdir "%%CYGWIN_ROOT%%\bin"
@@ -463,9 +460,9 @@ echo Creating launcher [%Start_cmd%]...
     echo if "%%1" == "" (
     if "%INSTALL_CONEMU%" == "yes" (
         if "%CYGWIN_ARCH%" == "64" (
-            echo   start %%~dp0conemu\ConEmu64.exe %CON_EMU_OPTIONS%
+            echo   start "" "%%~dp0conemu\ConEmu64.exe" %CON_EMU_OPTIONS%
         ) else (
-            echo   start %%~dp0conemu\ConEmu.exe %CON_EMU_OPTIONS%
+            echo   start "" "%%~dp0conemu\ConEmu.exe" %CON_EMU_OPTIONS%
         )
     ) else (
         echo   mintty --nopin %MINTTY_OPTIONS% --icon %CYGWIN_ROOT%\Cygwin-Terminal.ico -
@@ -482,7 +479,7 @@ echo Creating launcher [%Start_cmd%]...
 ) >"%Start_cmd%" || goto :fail
 
 :: launching Bash once to initialize user home dir
-call %Start_cmd% whoami
+call "%Start_cmd%" whoami
 
 set conemu_config=%INSTALL_ROOT%conemu\ConEmu.xml
 if "%INSTALL_CONEMU%" == "yes" (
