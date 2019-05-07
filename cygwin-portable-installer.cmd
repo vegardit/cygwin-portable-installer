@@ -49,7 +49,7 @@ set CYGWIN_ARCH=auto
 set CYGWIN_USERNAME=root
 
 :: select the packages to be installed automatically via apt-cyg
-set CYGWIN_PACKAGES=bash-completion,bc,curl,expect,git,git-svn,gnupg,inetutils,lz4,mc,nc,openssh,openssl,perl,python,pv,ssh-pageant,subversion,unzip,vim,wget,zip,zstd
+set CYGWIN_PACKAGES=bash-completion,bc,curl,expect,git,git-svn,gnupg,inetutils,lz4,mc,nc,openssh,openssl,perl,python,pv,ssh-pageant,screen,subversion,unzip,vim,wget,zip,zstd
 
 :: if set to 'yes' the local package cache created by cygwin setup will be deleted after installation/update
 set DELETE_CYGWIN_PACKAGE_CACHE=yes
