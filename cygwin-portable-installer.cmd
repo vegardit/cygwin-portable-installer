@@ -281,8 +281,8 @@ echo Creating [%Init_sh%]...
     echo #
     echo # adjust Cygwin packages cache path
     echo #
-    echo pkg_cache_dir=$(cygpath -w "$CYGWIN_ROOT/../cygwin-pkg-cache"^)
-    echo sed -i -E "s/.*\\\cygwin-pkg-cache/"$'\t'"${pkg_cache_dir//\\/\\\\}/" /etc/setup/setup.rc
+    echo pkg_cache_dir=$(cygpath -w "$CYGWIN_ROOT/.pkg-cache"^)
+    echo sed -i -E "s/.*\\\.pkg-cache/"$'\t'"${pkg_cache_dir//\\/\\\\}/" /etc/setup/setup.rc
     echo.
     if not "%PROXY_HOST%" == "" (
         echo if [[ $HOSTNAME == "%COMPUTERNAME%" ]]; then
