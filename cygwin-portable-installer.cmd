@@ -93,7 +93,6 @@ set MINTTY_OPTIONS=--Title cygwin-portable ^
 :: CONFIG CUSTOMIZATION END
 :: ============================================================================================================
 
-
 echo.
 echo ###########################################################
 echo # Installing [Cygwin Portable]...
@@ -101,6 +100,11 @@ echo ###########################################################
 echo.
 
 set INSTALL_ROOT=%~dp0
+
+:: load customizations from separate file if exists
+if exist %INSTALL_ROOT%cygwin-portable-installer-config.cmd (
+  call %INSTALL_ROOT%cygwin-portable-installer-config.cmd
+)
 
 set CYGWIN_ROOT=%INSTALL_ROOT%cygwin
 echo Creating Cygwin root [%CYGWIN_ROOT%]...
