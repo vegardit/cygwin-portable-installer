@@ -38,10 +38,10 @@ set CYGWIN_ARCH=auto
 set CYGWIN_USERNAME=root
 
 :: select the packages to be installed automatically via apt-cyg
-set CYGWIN_PACKAGES=bash-completion,bc,curl,expect,git,git-svn,gnupg,inetutils,lz4,mc,nc,openssh,openssl,perl,psmisc,python,pv,rsync,ssh-pageant,screen,subversion,unzip,vim,wget,zip,zstd
+set CYGWIN_PACKAGES=bash-completion,bc,curl,expect,git,git-svn,gnupg,inetutils,lz4,mc,nc,openssh,openssl,perl,psmisc,python37,pv,rsync,ssh-pageant,screen,subversion,unzip,vim,wget,zip,zstd
 
 :: if set to 'yes' the local package cache created by cygwin setup will be deleted after installation/update
-set DELETE_CYGWIN_PACKAGE_CACHE=yes
+set DELETE_CYGWIN_PACKAGE_CACHE=no
 
 :: if set to 'yes' the apt-cyg command line package manager (https://github.com/kou1okada/apt-cyg) will be installed automatically
 set INSTALL_APT_CYG=yes
@@ -49,9 +49,16 @@ set INSTALL_APT_CYG=yes
 :: if set to 'yes' the bash-funk adaptive Bash prompt (https://github.com/vegardit/bash-funk) will be installed automatically
 set INSTALL_BASH_FUNK=yes
 
+:: if set to 'yes' Node.js (https://nodejs.org/) will be installed automatically
+set INSTALL_NODEJS=yes
+:: Use of the folder names found here https://nodejs.org/dist/ as version name.
+set NODEJS_VERSION=latest-v12.x
+:: one of: auto,64,32 - specifies if 32 or 64 bit version should be installed or automatically detected based on current OS architecture
+set NODEJS_ARCH=auto
+
 :: if set to 'yes' Ansible (https://github.com/ansible/ansible) will be installed automatically
 set INSTALL_ANSIBLE=yes
-set ANSIBLE_GIT_BRANCH=stable-2.7
+set ANSIBLE_GIT_BRANCH=stable-2.9
 
 :: if set to 'yes' AWS CLI (https://github.com/aws/aws-cli) will be installed automatically
 set INSTALL_AWS_CLI=yes
@@ -59,7 +66,7 @@ set INSTALL_AWS_CLI=yes
 :: if set to 'yes' testssl.sh (https://testssl.sh/) will be installed automatically
 set INSTALL_TESTSSL_SH=yes
 :: name of the GIT branch to install from, see https://github.com/drwetter/testssl.sh/
-set TESTSSL_GIT_BRANCH=2.9.5
+set TESTSSL_GIT_BRANCH=v2.9.5-8
 
 :: use ConEmu based tabbed terminal instead of Mintty based single window terminal, see https://conemu.github.io/
 set INSTALL_CONEMU=yes
@@ -181,8 +188,31 @@ if "%INSTALL_APT_CYG%" == "yes" (
    set CYGWIN_PACKAGES=wget,ca-certificates,gnupg,%CYGWIN_PACKAGES%
 )
 
+:: https://blogs.msdn.microsoft.com/david.wang/2006/03/27/howto-detect-process-bitness/
+if "%INSTALL_NODEJS%" == "yes" (
+    set CYGWIN_PACKAGES=unzip,%CYGWIN_PACKAGES%
+
+    if "%NODEJS_ARCH%" == "auto" (
+        if "%PROCESSOR_ARCHITECTURE%" == "x86" (
+            if defined PROCESSOR_ARCHITEW6432 (
+                set NODEJS_ARCH=64
+            ) else (
+                set NODEJS_ARCH=86
+            )
+        ) else (
+            set NODEJS_ARCH=64
+        )
+    ) else if "%NODEJS_ARCH%" == "32" (
+        set NODEJS_ARCH=86
+    )
+)
+
 if "%INSTALL_ANSIBLE%" == "yes" (
-    set CYGWIN_PACKAGES=git,openssh,python-jinja2,python-six,python-yaml,%CYGWIN_PACKAGES%
+    set CYGWIN_PACKAGES=git,openssh,python37,python37-jinja2,python37-six,python37-yaml,%CYGWIN_PACKAGES%
+)
+
+if "%INSTALL_AWS_CLI%" == "yes" (
+   set CYGWIN_PACKAGES=python37,%CYGWIN_PACKAGES%
 )
 
 :: if conemu install is selected we need to be able to extract 7z archives, otherwise we need to install mintty
@@ -254,7 +284,7 @@ echo Creating updater [%Updater_cmd%]...
 ) >"%Updater_cmd%" || goto :fail
 
 set Cygwin_bat=%CYGWIN_ROOT%\Cygwin.bat
-if exist "%CYGWIN_ROOT%\Cygwin.bat" (
+if exist "%Cygwin_bat%" (
     echo Disabling default Cygwin launcher [%Cygwin_bat%]...
     if exist "%Cygwin_bat%.disabled" (
         del "%Cygwin_bat%.disabled" || goto :fail
@@ -279,6 +309,8 @@ echo Creating [%Init_sh%]...
     echo     echo $USERNAME:unused:1001:$GID:$USER_SID:$HOME:/bin/bash ^>^> /etc/passwd
     echo fi
     echo.
+    echo cp -rn /etc/skel /home/$USERNAME
+    echo.
     echo # already set in cygwin-portable.cmd:
     echo # export CYGWIN_ROOT=$(cygpath -w /^)
     echo.
@@ -287,6 +319,10 @@ echo Creating [%Init_sh%]...
     echo #
     echo pkg_cache_dir=$(cygpath -w "$CYGWIN_ROOT/.pkg-cache"^)
     echo sed -i -E "s/.*\\\.pkg-cache/"$'\t'"${pkg_cache_dir//\\/\\\\}/" /etc/setup/setup.rc
+    echo.
+    echo # Make python3 available as python if python2 is not installed
+    echo [[ -e /usr/bin/python3 ]] ^|^| /usr/sbin/update-alternatives --install /usr/bin/python3 python3 $^(/usr/bin/find /usr/bin -maxdepth 1 -name "python3.*" -print -quit^) 1
+    echo [[ -e /usr/bin/python  ]] ^|^| /usr/sbin/update-alternatives --install /usr/bin/python  python  $^(/usr/bin/find /usr/bin -maxdepth 1 -name "python3.*" -print -quit^) 1
     echo.
     if not "%PROXY_HOST%" == "" (
         echo if [[ $HOSTNAME == "%COMPUTERNAME%" ]]; then
@@ -316,14 +352,11 @@ echo Creating [%Init_sh%]...
         echo #
         echo # Installing Ansible if not yet installed
         echo #
-        echo if [[ ! -e /opt ]]; then mkdir /opt; fi
-        echo export PYTHONHOME=/usr/ PYTHONPATH=/usr/lib/python2.7 # workaround for "ImportError: No module named site" when Python for Windows is installed too
-        echo export PATH=$PATH:/opt/ansible/bin
-        echo export PYTHONPATH=$PYTHONPATH:/opt/ansible/lib
-        echo if ! hash ansible 2^>/dev/null; then
+        echo if [[ ! -e /opt/ansible ]]; then
         echo     echo "*******************************************************************************"
         echo     echo "* Installing [Ansible - %ANSIBLE_GIT_BRANCH%]..."
         echo     echo "*******************************************************************************"
+        echo     [[ -e /opt ]] ^|^| mkdir /opt
         echo     git clone https://github.com/ansible/ansible --branch %ANSIBLE_GIT_BRANCH% --single-branch --depth 1 --shallow-submodules /opt/ansible
         echo fi
         echo.
@@ -337,13 +370,10 @@ echo Creating [%Init_sh%]...
         echo     echo "*******************************************************************************"
         echo     echo "* Installing [AWS CLI]..."
         echo     echo "*******************************************************************************"
-        echo     python -m ensurepip --default-pip
-        echo     # remove potential left-overs of previous installation
-        echo     rm -rf awscli-bundle.zip awscli-bundle /usr/bin/aws.cmd /usr/bin/aws /usr/local/aws /usr/local/bin/aws
-        echo     curl https://s3.amazonaws.com/aws-cli/awscli-bundle.zip -o awscli-bundle.zip
-        echo     unzip awscli-bundle.zip
-        echo     awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
-        echo     rm -rf awscli-bundle awscli-bundle.zip
+        echo     export PYTHONHOME=/usr
+        echo     python3 -m ensurepip --default-pip
+        echo     pip3 install --upgrade pip
+        echo     pip3 install --upgrade awscli
         echo fi
         echo.
     )
@@ -365,11 +395,11 @@ echo Creating [%Init_sh%]...
         echo #
         echo # Installing bash-funk if not yet installed
         echo #
-        echo if [[ ! -e /opt ]]; then mkdir /opt; fi
         echo if [[ ! -e /opt/bash-funk/bash-funk.sh ]]; then
         echo     echo "*******************************************************************************"
         echo     echo "* Installing [bash-funk]..."
         echo     echo "*******************************************************************************"
+        echo     [[ -e /opt ]] ^|^| mkdir /opt
         echo     if hash git ^&^>/dev/null; then
         echo         git clone https://github.com/vegardit/bash-funk --branch master --single-branch --depth 1 --shallow-submodules /opt/bash-funk
         echo     elif hash svn ^&^>/dev/null; then
@@ -381,20 +411,52 @@ echo Creating [%Init_sh%]...
         echo     fi
         echo fi
     )
+    if "%INSTALL_NODEJS%" == "yes" (
+        echo #
+        echo # Installing NodeJS if not yet installed
+        echo #
+        REM TODO requires gcc-g++, git, python
+        REM echo export NVM_DIR=/opt/nvm
+        REM echo if [[ ! -e $NVM_DIR ]]; then
+        REM echo     nvm_version=$^(curl -s https://api.github.com/repos/nvm-sh/nvm/releases/latest ^| grep -Po 'tag_name": "\Kv[0-9.]+'^)
+        REM echo     mkdir /opt/nvm
+        REM echo     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$nvm_version/install.sh ^| bash
+        REM echo fi
+        echo if [[ ! -e /opt/nodejs/current ]]; then
+        echo     nodejs_ver=%NODEJS_VERSION%
+        echo     if [[ $nodejs_ver == latest* ]]; then
+        echo         nodejs_ver=$^(curl -s https://nodejs.org/dist/$nodejs_ver/ ^| grep -oP 'node-^(\K[v0-9.]+[0-9]^)' ^| head -n1^)
+        echo     fi
+        echo     node_js_root="/opt/nodejs/node-${nodejs_ver}-win-x%NODEJS_ARCH%"
+        echo     echo "*******************************************************************************"
+        echo     echo "* Installing [Node.js]..."
+        echo     echo "*******************************************************************************"
+        echo     curl https://nodejs.org/dist/${nodejs_ver}/node-${nodejs_ver}-win-x%NODEJS_ARCH%.zip -o nodejs.zip
+        echo     mkdir -p /opt/nodejs
+        echo     echo "Extracting Node.js $nodejs_ver to '$node_js_root'..."
+        echo     unzip -q -d /opt/nodejs/ nodejs.zip
+        echo     rm -f nodejs.zip
+        echo     rm -f /opt/nodejs/current
+        echo     ln -s $node_js_root /opt/nodejs/current
+        echo     chmod 755 /opt/nodejs/current/node.exe
+        echo     chmod 755 /opt/nodejs/current/npm
+        echo     chmod 755 /opt/nodejs/current/npx
+        echo fi
+    )
     if "%INSTALL_TESTSSL_SH%" == "yes" (
         echo.
         echo #
         echo # Installing testssl.sh if not yet installed
         echo #
-        echo if [[ ! -e /opt ]]; then mkdir /opt; fi
         echo if [[ ! -e /opt/testssl/testssl.sh ]]; then
         echo     echo "*******************************************************************************"
         echo     echo "* Installing [testssl.sh - %TESTSSL_GIT_BRANCH%]..."
         echo     echo "*******************************************************************************"
+        echo     [[ -e /opt ]] ^|^| mkdir /opt
         echo     if hash git ^&^>/dev/null; then
         echo         git clone https://github.com/drwetter/testssl.sh --branch %TESTSSL_GIT_BRANCH% --single-branch --depth 1 --shallow-submodules /opt/testssl
         echo     elif hash svn ^&^>/dev/null; then
-        echo         svn checkout https://github.com/drwetter/testssl.sh/branches/%TESTSSL_GIT_BRANCH% /opt/testssl
+        echo         svn checkout https://github.com/drwetter/testssl.sh/tags/%TESTSSL_GIT_BRANCH% /opt/testssl
         echo     else
         echo         mkdir /opt/testssl ^&^& \
         echo         cd /opt/testssl ^&^& \
@@ -458,7 +520,7 @@ echo Creating launcher [%Start_cmd%]...
             echo   start "" "%%~dp0conemu\ConEmu.exe" %CON_EMU_OPTIONS%
         )
     ) else (
-        echo   mintty --nopin %MINTTY_OPTIONS% --icon %CYGWIN_ROOT%\Cygwin-Terminal.ico -
+        echo   mintty --nopin %MINTTY_OPTIONS% --icon %%CYGWIN_ROOT%%\Cygwin-Terminal.ico -
     )
     echo ^) else (
     echo   if "%%1" == "no-mintty" (
@@ -548,6 +610,11 @@ if "%INSTALL_CONEMU%" == "yes" (
 
 set Bashrc_sh=%CYGWIN_ROOT%\home\%CYGWIN_USERNAME%\.bashrc
 
+find "export PYTHONHOME" "%Bashrc_sh%" >NUL || (
+    echo.
+    echo export PYTHONHOME=/usr
+) >>"%Bashrc_sh%" || goto :fail
+
 if not "%CYGWIN_PACKAGES%" == "%CYGWIN_PACKAGES:ssh-pageant=%" (
     :: https://github.com/cuviper/ssh-pageant
     echo Adding ssh-pageant to [/home/%CYGWIN_USERNAME%/.bashrc]...
@@ -576,9 +643,21 @@ if "%INSTALL_ANSIBLE%" == "yes" (
     find "ansible" "%Bashrc_sh%" >NUL || (
         (
             echo.
-            echo export PYTHONHOME=/usr/ PYTHONPATH=/usr/lib/python2.7 # workaround for "ImportError: No module named site" when Python for Windows is installed too
             echo export PYTHONPATH=$PYTHONPATH:/opt/ansible/lib
             echo export PATH=$PATH:/opt/ansible/bin
+        ) >>"%Bashrc_sh%" || goto :fail
+    )
+)
+if "%INSTALL_NODEJS%" == "yes" (
+    echo Adding Node.js to PATH in [/home/%CYGWIN_USERNAME%/.bashrc]...
+    find "NODEJS_HOME" "%Bashrc_sh%" >NUL || (
+        (
+            echo.
+            REM TODO
+            REM echo export NVM_DIR="/opt/nvm"
+            REM echo [ -s "$NVM_DIR/nvm.sh" ] ^&^& \. "$NVM_DIR/nvm.sh"  # This loads nvm
+            echo export NODEJS_HOME=/opt/nodejs/current
+            echo export PATH=$PATH:$NODEJS_HOME
         ) >>"%Bashrc_sh%" || goto :fail
     )
 )

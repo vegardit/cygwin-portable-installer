@@ -54,6 +54,7 @@ disabled for non-administrative users via group policies.
     1. install the [bash-funk](https://github.com/vegardit/bash-funk) Bash toolbox with it's adaptive Bash prompt
     1. install [Ansible](https://github.com/ansible/ansible)
     1. install [AWS CLI](https://github.com/aws/aws-cli)
+    1. install [Node.js](https://nodejs.org)
     1. install [testssl.sh](https://testssl.sh/)
 1. Now you can launch your portable Cygwin environment using the newly created `cygwin-portable.cmd` batch file.
     ![Launch Script](docs/img/launch_script.png)
@@ -81,10 +82,10 @@ set CYGWIN_ARCH=auto
 set CYGWIN_USERNAME=root
 
 :: select the packages to be installed automatically via apt-cyg
-set CYGWIN_PACKAGES=bash-completion,bc,curl,expect,git,git-svn,gnupg,inetutils,lz4,mc,nc,openssh,openssl,perl,psmisc,python,pv,rsync,ssh-pageant,screen,subversion,unzip,vim,wget,zip,zstd
+set CYGWIN_PACKAGES=bash-completion,bc,curl,expect,git,git-svn,gnupg,inetutils,lz4,mc,nc,openssh,openssl,perl,psmisc,python37,pv,rsync,ssh-pageant,screen,subversion,unzip,vim,wget,zip,zstd
 
 :: if set to 'yes' the local package cache created by cygwin setup will be deleted after installation/update
-set DELETE_CYGWIN_PACKAGE_CACHE=yes
+set DELETE_CYGWIN_PACKAGE_CACHE=no
 
 :: if set to 'yes' the apt-cyg command line package manager (https://github.com/kou1okada/apt-cyg) will be installed automatically
 set INSTALL_APT_CYG=yes
@@ -92,9 +93,16 @@ set INSTALL_APT_CYG=yes
 :: if set to 'yes' the bash-funk adaptive Bash prompt (https://github.com/vegardit/bash-funk) will be installed automatically
 set INSTALL_BASH_FUNK=yes
 
+:: if set to 'yes' Node.js (https://nodejs.org/) will be installed automatically
+set INSTALL_NODEJS=yes
+:: Use of the folder names found here https://nodejs.org/dist/ as version name.
+set NODEJS_VERSION=latest-v12.x
+:: one of: auto,64,32 - specifies if 32 or 64 bit version should be installed or automatically detected based on current OS architecture
+set NODEJS_ARCH=auto
+
 :: if set to 'yes' Ansible (https://github.com/ansible/ansible) will be installed automatically
 set INSTALL_ANSIBLE=yes
-set ANSIBLE_GIT_BRANCH=stable-2.7
+set ANSIBLE_GIT_BRANCH=stable-2.9
 
 :: if set to 'yes' AWS CLI (https://github.com/aws/aws-cli) will be installed automatically
 set INSTALL_AWS_CLI=yes
@@ -102,7 +110,7 @@ set INSTALL_AWS_CLI=yes
 :: if set to 'yes' testssl.sh (https://testssl.sh/) will be installed automatically
 set INSTALL_TESTSSL_SH=yes
 :: name of the GIT branch to install from, see https://github.com/drwetter/testssl.sh/
-set TESTSSL_GIT_BRANCH=2.9.5
+set TESTSSL_GIT_BRANCH=v2.9.5-8
 
 :: use ConEmu based tabbed terminal instead of Mintty based single window terminal, see https://conemu.github.io/
 set INSTALL_CONEMU=yes
