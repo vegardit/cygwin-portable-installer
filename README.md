@@ -29,6 +29,7 @@ disabled for non-administrative users via group policies.
 * additional tools (opt-out via config parameter is possible):
     * [Ansible](https://github.com/ansible/ansible): deployment automation tool
     * [AWS CLI](https://github.com/aws/aws-cli): AWS cloud commandline tool
+    * [Node.js](https://nodejs.org): JavaScript runtime
     * [testssl.sh](https://testssl.sh/): command line tool to check SSL/TLS configurations of servers
 
 
