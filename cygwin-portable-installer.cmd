@@ -130,10 +130,16 @@ if "%PROXY_HOST%" == "" (
 )
 
 (
+
     echo url = Wscript.Arguments(0^)
     echo target = Wscript.Arguments(1^)
     echo WScript.Echo "Downloading '" ^& url ^& "' to '" ^& target ^& "'..."
-    echo Set req = CreateObject("WinHttp.WinHttpRequest.5.1"^)
+    echo On Error Resume Next
+    echo Set req = CreateObject("MSXML2.XMLHTTP.6.0"^)
+    echo On Error GoTo 0
+    echo If req Is Nothing Then
+    echo   Set req = CreateObject("WinHttp.WinHttpRequest.5.1"^)
+    echo End If
     echo%DOWNLOADER_PROXY%
     echo req.Open "GET", url, False
     echo req.Send
