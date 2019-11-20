@@ -130,7 +130,6 @@ if "%PROXY_HOST%" == "" (
 )
 
 (
-
     echo url = Wscript.Arguments(0^)
     echo target = Wscript.Arguments(1^)
     echo WScript.Echo "Downloading '" ^& url ^& "' to '" ^& target ^& "'..."
