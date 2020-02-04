@@ -517,7 +517,10 @@ echo Creating launcher [%Start_cmd%]...
     echo chdir "%%CYGWIN_ROOT%%\bin"
     echo bash "%%CYGWIN_ROOT%%\portable-init.sh"
     echo.
-    echo if "%%1" == "" (
+    :: https://stackoverflow.com/a/8452363/5116073
+    echo set "arg1=%%~1"
+    echo setlocal EnableDelayedExpansion
+    echo if "!arg1!" == "" (
     if "%INSTALL_CONEMU%" == "yes" (
         if "%CYGWIN_ARCH%" == "64" (
             echo   start "" "%%~dp0conemu\ConEmu64.exe" %CON_EMU_OPTIONS%
@@ -528,7 +531,7 @@ echo Creating launcher [%Start_cmd%]...
         echo   mintty --nopin %MINTTY_OPTIONS% --icon %%CYGWIN_ROOT%%\Cygwin-Terminal.ico -
     )
     echo ^) else (
-    echo   if "%%1" == "no-mintty" (
+    echo   if "!arg1!" == "no-mintty" (
     echo     bash --login -i
     echo   ^) else (
     echo     bash --login -c %%*
