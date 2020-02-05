@@ -314,7 +314,7 @@ echo Creating [%Init_sh%]...
     echo     echo $USERNAME:unused:1001:$GID:$USER_SID:$HOME:/bin/bash ^>^> /etc/passwd
     echo fi
     echo.
-    echo cp -rn /etc/skel /home/$USERNAME
+    echo cp -rnv /etc/skel/. /home/$USERNAME
     echo.
     echo # already set in cygwin-portable.cmd:
     echo # export CYGWIN_ROOT=$(cygpath -w /^)
