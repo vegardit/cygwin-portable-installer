@@ -325,9 +325,13 @@ echo Creating [%Init_sh%]...
     echo pkg_cache_dir=$(cygpath -w "$CYGWIN_ROOT/.pkg-cache"^)
     echo sed -i -E "s/.*\\\.pkg-cache/"$'\t'"${pkg_cache_dir//\\/\\\\}/" /etc/setup/setup.rc
     echo.
+    echo #
     echo # Make python3 available as python if python2 is not installed
-    echo [[ -e /usr/bin/python3 ]] ^|^| /usr/sbin/update-alternatives --install /usr/bin/python3 python3 $^(/usr/bin/find /usr/bin -maxdepth 1 -name "python3.*" -print -quit^) 1
-    echo [[ -e /usr/bin/python  ]] ^|^| /usr/sbin/update-alternatives --install /usr/bin/python  python  $^(/usr/bin/find /usr/bin -maxdepth 1 -name "python3.*" -print -quit^) 1
+    echo #
+    echo if cygcheck python3 ^> /dev/null; then
+    echo     [[ -e /usr/bin/python3 ]] ^|^| /usr/sbin/update-alternatives --install /usr/bin/python3 python3 $^(/usr/bin/find /usr/bin -maxdepth 1 -name "python3.*" -print -quit ^| head -1^) 1
+    echo     [[ -e /usr/bin/python  ]] ^|^| /usr/sbin/update-alternatives --install /usr/bin/python  python  $^(/usr/bin/find /usr/bin -maxdepth 1 -name "python3.*" -print -quit ^| head -1^) 1
+    echo fi
     echo.
     if not "%PROXY_HOST%" == "" (
         echo if [[ $HOSTNAME == "%COMPUTERNAME%" ]]; then
