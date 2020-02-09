@@ -65,7 +65,7 @@ disabled for non-administrative users via group policies.
 ### <a name="customize"></a>Customizing the installer
 
 You can customize the installer by either directly modifying the default settings in the `cygwin-portable-installer.cmd` file,
-or by placing a separate file called `cygwin-portable-installer-config.cmd` next where some or all of these settings are overwritten.
+or by placing a separate file called `cygwin-portable-installer-config.cmd` next to it where some or all of these settings are overwritten.
 
 These settings are currently available:
 
