@@ -119,43 +119,6 @@ if not exist "%CYGWIN_ROOT%" (
     md "%CYGWIN_ROOT%"
 )
 
-:: create VB script that can download files
-:: not using PowerShell which may be blocked by group policies
-set DOWNLOADER=%INSTALL_ROOT%downloader.vbs
-echo Creating [%DOWNLOADER%] script...
-if "%PROXY_HOST%" == "" (
-    set DOWNLOADER_PROXY=.
-) else (
-    set DOWNLOADER_PROXY= req.SetProxy 2, "%PROXY_HOST%:%PROXY_PORT%", ""
-)
-
-(
-    echo url = Wscript.Arguments(0^)
-    echo target = Wscript.Arguments(1^)
-    echo WScript.Echo "Downloading '" ^& url ^& "' to '" ^& target ^& "'..."
-    echo On Error Resume Next
-    echo Set req = CreateObject("MSXML2.XMLHTTP.6.0"^)
-    echo On Error GoTo 0
-    echo If req Is Nothing Then
-    echo   Set req = CreateObject("WinHttp.WinHttpRequest.5.1"^)
-    echo End If
-    echo%DOWNLOADER_PROXY%
-    echo req.Open "GET", url, False
-    echo req.Send
-    echo If req.Status ^<^> 200 Then
-    echo    WScript.Echo "FAILED to download: HTTP Status " ^& req.Status
-    echo    WScript.Quit 1
-    echo End If
-    echo Set buff = CreateObject("ADODB.Stream"^)
-    echo buff.Open
-    echo buff.Type = 1
-    echo buff.Write req.ResponseBody
-    echo buff.Position = 0
-    echo buff.SaveToFile target
-    echo buff.Close
-    echo.
-) >"%DOWNLOADER%" || goto :fail
-
 :: https://blogs.msdn.microsoft.com/david.wang/2006/03/27/howto-detect-process-bitness/
 if "%CYGWIN_ARCH%" == "auto" (
     if "%PROCESSOR_ARCHITECTURE%" == "x86" (
@@ -171,16 +134,80 @@ if "%CYGWIN_ARCH%" == "auto" (
 
 :: download Cygwin 32 or 64 setup exe depending on detected architecture
 if "%CYGWIN_ARCH%" == "64" (
-    set CYGWIN_SETUP=setup-x86_64.exe
+    set CYGWIN_SETUP_EXE=setup-x86_64.exe
 ) else (
-    set CYGWIN_SETUP=setup-x86.exe
+    set CYGWIN_SETUP_EXE=setup-x86.exe
 )
 
-if exist "%CYGWIN_ROOT%\%CYGWIN_SETUP%" (
-    del "%CYGWIN_ROOT%\%CYGWIN_SETUP%" || goto :fail
+if exist "%CYGWIN_ROOT%\%CYGWIN_SETUP_EXE%" (
+    del "%CYGWIN_ROOT%\%CYGWIN_SETUP_EXE%" || goto :fail
 )
-cscript //Nologo "%DOWNLOADER%" https://cygwin.org/%CYGWIN_SETUP% "%CYGWIN_ROOT%\%CYGWIN_SETUP%" || goto :fail
-del "%DOWNLOADER%"
+
+where /q curl
+if %ERRORLEVEL% EQU 0 (
+    goto :download_setup_exe_with_curl
+) else (
+    goto :download_setup_exe_with_vbs
+)
+
+:download_setup_exe_with_curl
+    if "%PROXY_HOST%" == "" (
+        set "http_proxy="
+        set "https_proxy="
+    ) else (
+        set http_proxy=http://%PROXY_HOST%:%PROXY_PORT%
+        set https_proxy=http://%PROXY_HOST%:%PROXY_PORT%
+    )
+    echo Downloading 'https://cygwin.org/%CYGWIN_SETUP_EXE%' to '%CYGWIN_ROOT%\%CYGWIN_SETUP_EXE%' using curl...
+    curl https://cygwin.org/%CYGWIN_SETUP_EXE% -# -o "%CYGWIN_ROOT%\%CYGWIN_SETUP_EXE%" || goto :fail
+    goto :download_setup_exe_done
+
+:download_setup_exe_with_vbs
+    :: create VB script that can download files
+    :: not using PowerShell which may be blocked by group policies
+    set DOWNLOADER=%INSTALL_ROOT%downloader.vbs
+    echo Creating [%DOWNLOADER%] script...
+    if "%PROXY_HOST%" == "" (
+        set DOWNLOADER_PROXY=.
+    ) else (
+        set DOWNLOADER_PROXY= req.SetProxy 2, "%PROXY_HOST%:%PROXY_PORT%", ""
+    )
+
+    (
+        echo url = Wscript.Arguments(0^)
+        echo target = Wscript.Arguments(1^)
+        echo On Error Resume Next
+        echo reqType = "MSXML2.XMLHTTP.6.0"
+        echo Set req = CreateObject(reqType^)
+        echo On Error GoTo 0
+        echo If req Is Nothing Then
+        echo   reqType = "WinHttp.WinHttpRequest.5.1"
+        echo   Set req = CreateObject(reqType^)
+        echo End If
+        echo WScript.Echo "Downloading '" ^& url ^& "' to '" ^& target ^& "' using '" ^& reqType ^& "'..."
+        echo%DOWNLOADER_PROXY%
+        echo req.Open "GET", url, False
+        echo req.Send
+        echo If req.Status ^<^> 200 Then
+        echo    WScript.Echo "FAILED to download: HTTP Status " ^& req.Status
+        echo    WScript.Quit 1
+        echo End If
+        echo Set buff = CreateObject("ADODB.Stream"^)
+        echo buff.Open
+        echo buff.Type = 1
+        echo buff.Write req.ResponseBody
+        echo buff.Position = 0
+        echo buff.SaveToFile target
+        echo buff.Close
+        echo.
+    ) >"%DOWNLOADER%" || goto :fail
+
+    cscript //Nologo "%DOWNLOADER%" https://cygwin.org/%CYGWIN_SETUP_EXE% "%CYGWIN_ROOT%\%CYGWIN_SETUP_EXE%" || goto :fail
+    del "%DOWNLOADER%"
+
+    goto :download_setup_exe_done
+
+:download_setup_exe_done
 
 :: Cygwin command line options: https://cygwin.com/faq/faq.html#faq.setup.cli
 if "%PROXY_HOST%" == "" (
@@ -233,7 +260,7 @@ if "%INSTALL_TESTSSL_SH%" == "yes" (
 
 
 echo Running Cygwin setup...
-"%CYGWIN_ROOT%\%CYGWIN_SETUP%" --no-admin ^
+"%CYGWIN_ROOT%\%CYGWIN_SETUP_EXE%" --no-admin ^
  --site %CYGWIN_MIRROR% %CYGWIN_PROXY% ^
  --root "%CYGWIN_ROOT%" ^
  --local-package-dir "%CYGWIN_ROOT%\.pkg-cache" ^
@@ -260,7 +287,7 @@ echo Creating updater [%Updater_cmd%]...
     echo echo # Updating [Cygwin Portable]...
     echo echo ###########################################################
     echo echo.
-    echo "%%CYGWIN_ROOT%%\%CYGWIN_SETUP%" --no-admin ^^
+    echo "%%CYGWIN_ROOT%%\%CYGWIN_SETUP_EXE%" --no-admin ^^
     echo --site %CYGWIN_MIRROR% %CYGWIN_PROXY% ^^
     echo --root "%%CYGWIN_ROOT%%" ^^
     echo --local-package-dir "%%CYGWIN_ROOT%%\.pkg-cache" ^^
