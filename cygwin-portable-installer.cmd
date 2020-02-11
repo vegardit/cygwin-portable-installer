@@ -29,7 +29,7 @@ set PROXY_HOST=
 set PROXY_PORT=8080
 
 :: change the URL to the closest mirror https://cygwin.com/mirrors.html
-set CYGWIN_MIRROR=http://linux.rz.ruhr-uni-bochum.de/download/cygwin
+set CYGWIN_MIRROR=https://linux.rz.ruhr-uni-bochum.de/download/cygwin
 
 :: one of: auto,64,32 - specifies if 32 or 64 bit version should be installed or automatically detected based on current OS architecture
 set CYGWIN_ARCH=auto
