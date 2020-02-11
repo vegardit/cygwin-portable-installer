@@ -66,7 +66,7 @@ set INSTALL_AWS_CLI=yes
 :: if set to 'yes' testssl.sh (https://testssl.sh/) will be installed automatically
 set INSTALL_TESTSSL_SH=yes
 :: name of the GIT branch to install from, see https://github.com/drwetter/testssl.sh/
-set TESTSSL_GIT_BRANCH=v2.9.5-8
+set TESTSSL_GIT_BRANCH=3.0
 
 :: use ConEmu based tabbed terminal instead of Mintty based single window terminal, see https://conemu.github.io/
 set INSTALL_CONEMU=yes
