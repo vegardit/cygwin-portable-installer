@@ -355,9 +355,10 @@ echo Creating [%Init_sh%]...
     echo #
     echo # Make python3 available as python if python2 is not installed
     echo #
-    echo if cygcheck python3 ^> /dev/null; then
-    echo     [[ -e /usr/bin/python3 ]] ^|^| /usr/sbin/update-alternatives --install /usr/bin/python3 python3 $^(/usr/bin/find /usr/bin -maxdepth 1 -name "python3.*" -print -quit ^| head -1^) 1
-    echo     [[ -e /usr/bin/python  ]] ^|^| /usr/sbin/update-alternatives --install /usr/bin/python  python  $^(/usr/bin/find /usr/bin -maxdepth 1 -name "python3.*" -print -quit ^| head -1^) 1
+    echo python3=^$(/usr/bin/find /usr/bin -maxdepth 1 -name "python3.*" -print -quit ^| head -1^)
+    echo if [[ -e $python3 ]] ^> /dev/null; then
+    echo     [[ -e /usr/bin/python3 ]] ^|^| /usr/sbin/update-alternatives --install /usr/bin/python3 python3 "$python3" 1
+    echo     [[ -e /usr/bin/python  ]] ^|^| /usr/sbin/update-alternatives --install /usr/bin/python  python  "$python3" 1
     echo fi
     echo.
     if not "%PROXY_HOST%" == "" (
