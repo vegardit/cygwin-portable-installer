@@ -74,7 +74,7 @@ set CON_EMU_OPTIONS=-Title cygwin-portable ^
  -QuitOnClose
 
 :: add more path if required, but at the cost of runtime performance (e.g. slower forks)
-set CYGWIN_PATH=%%SystemRoot%%\system32;%%SystemRoot%%
+set "CYGWIN_PATH=%%SystemRoot%%\system32;%%SystemRoot%%"
 
 :: set Mintty options, see https://cdn.rawgit.com/mintty/mintty/master/docs/mintty.1.html#CONFIGURATION
 set MINTTY_OPTIONS=--Title cygwin-portable ^
@@ -106,14 +106,14 @@ echo # Installing [Cygwin Portable]...
 echo ###########################################################
 echo.
 
-set INSTALL_ROOT=%~dp0
+set "INSTALL_ROOT=%~dp0"
 
 :: load customizations from separate file if exists
-if exist %INSTALL_ROOT%cygwin-portable-installer-config.cmd (
-  call %INSTALL_ROOT%cygwin-portable-installer-config.cmd
+if exist "%INSTALL_ROOT%cygwin-portable-installer-config.cmd" (
+  call "%INSTALL_ROOT%cygwin-portable-installer-config.cmd"
 )
 
-set CYGWIN_ROOT=%INSTALL_ROOT%cygwin
+set "CYGWIN_ROOT=%INSTALL_ROOT%cygwin"
 echo Creating Cygwin root [%CYGWIN_ROOT%]...
 if not exist "%CYGWIN_ROOT%" (
     md "%CYGWIN_ROOT%"
@@ -276,11 +276,11 @@ if "%DELETE_CYGWIN_PACKAGE_CACHE%" == "yes" (
     rd /s /q "%CYGWIN_ROOT%\.pkg-cache"
 )
 
-set Updater_cmd=%INSTALL_ROOT%cygwin-portable-updater.cmd
+set "Updater_cmd=%INSTALL_ROOT%cygwin-portable-updater.cmd"
 echo Creating updater [%Updater_cmd%]...
 (
     echo @echo off
-    echo set CYGWIN_ROOT=%%~dp0cygwin
+    echo set "CYGWIN_ROOT=%%~dp0cygwin"
     echo echo.
     echo.
     echo echo ###########################################################
@@ -315,7 +315,7 @@ echo Creating updater [%Updater_cmd%]...
     echo exit /1
 ) >"%Updater_cmd%" || goto :fail
 
-set Cygwin_bat=%CYGWIN_ROOT%\Cygwin.bat
+set "Cygwin_bat=%CYGWIN_ROOT%\Cygwin.bat"
 if exist "%Cygwin_bat%" (
     echo Disabling default Cygwin launcher [%Cygwin_bat%]...
     if exist "%Cygwin_bat%.disabled" (
@@ -324,7 +324,7 @@ if exist "%Cygwin_bat%" (
     rename "%Cygwin_bat%" Cygwin.bat.disabled || goto :fail
 )
 
-set Init_sh=%CYGWIN_ROOT%\portable-init.sh
+set "Init_sh=%CYGWIN_ROOT%\portable-init.sh"
 echo Creating [%Init_sh%]...
 (
     echo #!/usr/bin/env bash
@@ -505,29 +505,29 @@ echo Creating [%Init_sh%]...
 ) >"%Init_sh%" || goto :fail
 "%CYGWIN_ROOT%\bin\dos2unix" "%Init_sh%" || goto :fail
 
-set Start_cmd=%INSTALL_ROOT%cygwin-portable.cmd
+set "Start_cmd=%INSTALL_ROOT%cygwin-portable.cmd"
 echo Creating launcher [%Start_cmd%]...
 (
     echo @echo off
     echo setlocal enabledelayedexpansion
-    echo set CWD=%%cd%%
+    echo set "CWD=%%cd%%"
     echo set CYGWIN_DRIVE=%%~d0
-    echo set CYGWIN_ROOT=%%~dp0cygwin
+    echo set "CYGWIN_ROOT=%%~dp0cygwin"
     echo.
     echo for %%%%i in ^(adb.exe^) do ^(
     echo    set "ADB_PATH=%%%%~dp$PATH:i"
     echo ^)
     echo.
-    echo set PATH=%CYGWIN_PATH%;%%CYGWIN_ROOT%%\bin;%%ADB_PATH%%
-    echo set ALLUSERSPROFILE=%%CYGWIN_ROOT%%\.ProgramData
-    echo set ProgramData=%%ALLUSERSPROFILE%%
+    echo set "PATH=%CYGWIN_PATH%;%%CYGWIN_ROOT%%\bin;%%ADB_PATH%%"
+    echo set "ALLUSERSPROFILE=%%CYGWIN_ROOT%%\.ProgramData"
+    echo set "ProgramData=%%ALLUSERSPROFILE%%"
     echo set CYGWIN=nodosfilewarning
     echo.
-    echo set USERNAME=%CYGWIN_USERNAME%
-    echo set HOME=/home/%%USERNAME%%
+    echo set "USERNAME=%CYGWIN_USERNAME%"
+    echo set "HOME=/home/%%USERNAME%%"
     echo set SHELL=/bin/bash
     echo set HOMEDRIVE=%%CYGWIN_DRIVE%%
-    echo set HOMEPATH=%%CYGWIN_ROOT%%\home\%%USERNAME%%
+    echo set "HOMEPATH=%%CYGWIN_ROOT%%\home\%%USERNAME%%"
     echo set GROUP=None
     echo set GRP=
     echo.
@@ -575,7 +575,7 @@ echo Creating launcher [%Start_cmd%]...
 :: launching Bash once to initialize user home dir
 call "%Start_cmd%" whoami
 
-set conemu_config=%INSTALL_ROOT%conemu\ConEmu.xml
+set "conemu_config=%INSTALL_ROOT%conemu\ConEmu.xml"
 if "%INSTALL_CONEMU%" == "yes" (
     (
         echo ^<?xml version="1.0" encoding="UTF-8"?^>
@@ -647,7 +647,7 @@ if "%INSTALL_CONEMU%" == "yes" (
     )> "%conemu_config%" || goto :fail
 )
 
-set Bashrc_sh=%CYGWIN_ROOT%\home\%CYGWIN_USERNAME%\.bashrc
+set "Bashrc_sh=%CYGWIN_ROOT%\home\%CYGWIN_USERNAME%\.bashrc"
 
 find "export PYTHONHOME" "%Bashrc_sh%" >NUL || (
     echo.
@@ -682,8 +682,8 @@ if "%INSTALL_ANSIBLE%" == "yes" (
     find "ansible" "%Bashrc_sh%" >NUL || (
         (
             echo.
-            echo export PYTHONPATH=$PYTHONPATH:/opt/ansible/lib
-            echo export PATH=$PATH:/opt/ansible/bin
+            echo export PYTHONPATH="$PYTHONPATH:/opt/ansible/lib"
+            echo export PATH="$PATH:/opt/ansible/bin"
         ) >>"%Bashrc_sh%" || goto :fail
     )
 )
@@ -696,7 +696,7 @@ if "%INSTALL_NODEJS%" == "yes" (
             REM echo export NVM_DIR="/opt/nvm"
             REM echo [ -s "$NVM_DIR/nvm.sh" ] ^&^& \. "$NVM_DIR/nvm.sh"  # This loads nvm
             echo export NODEJS_HOME=/opt/nodejs/current
-            echo export PATH=$PATH:$NODEJS_HOME
+            echo export PATH="$PATH:$NODEJS_HOME"
         ) >>"%Bashrc_sh%" || goto :fail
     )
 )
@@ -705,7 +705,7 @@ if "%INSTALL_TESTSSL_SH%" == "yes" (
     find "testssl" "%Bashrc_sh%" >NUL || (
         (
             echo.
-            echo export PATH=$PATH:/opt/testssl
+            echo export PATH="$PATH:/opt/testssl"
         ) >>"%Bashrc_sh%" || goto :fail
     )
 )
