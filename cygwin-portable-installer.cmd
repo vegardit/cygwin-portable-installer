@@ -114,10 +114,14 @@ if exist "%INSTALL_ROOT%cygwin-portable-installer-config.cmd" (
 )
 
 set "CYGWIN_ROOT=%INSTALL_ROOT%cygwin"
-echo Creating Cygwin root [%CYGWIN_ROOT%]...
 if not exist "%CYGWIN_ROOT%" (
-    md "%CYGWIN_ROOT%"
+    echo Creating Cygwin root [%CYGWIN_ROOT%]...
+    md "%CYGWIN_ROOT%" || goto :fail
+) else (
+    echo Granting user [%USERNAME%] full access to Cygwin root [%CYGWIN_ROOT%]...
+    icacls "%CYGWIN_ROOT%" /grant "%USERNAME%:(CI)(OI)(F)" || goto :fail
 )
+
 
 :: https://blogs.msdn.microsoft.com/david.wang/2006/03/27/howto-detect-process-bitness/
 if "%CYGWIN_ARCH%" == "auto" (
@@ -282,6 +286,8 @@ echo Creating updater [%Updater_cmd%]...
     echo @echo off
     echo set "CYGWIN_ROOT=%%~dp0cygwin"
     echo echo.
+    echo echo Granting user [%%USERNAME%%] full access to [%%CYGWIN_ROOT%%]...
+    echo icacls "%%CYGWIN_ROOT%%" /grant "%%USERNAME%%:(CI)(OI)(F)"
     echo.
     echo echo ###########################################################
     echo echo # Updating [Cygwin Portable]...
