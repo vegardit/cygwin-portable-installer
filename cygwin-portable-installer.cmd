@@ -1,4 +1,5 @@
 @echo off
+
 ::
 :: Copyright 2017-2019 by Vegard IT GmbH (https://vegardit.com) and the cygwin-portable-installer contributors.
 :: SPDX-License-Identifier: Apache-2.0
@@ -16,6 +17,9 @@
 :: - Ansible (deployment automation tool, see https://github.com/ansible/ansible)
 :: - AWS CLI (AWS cloud command line tool, see https://github.com/aws/aws-cli)
 :: - testssl.sh (command line tool to check SSL/TLS configurations of servers, see https://testssl.sh/)
+
+:: if executed with "--debug" print all executed commands
+if [%1]==[--debug] echo on
 
 
 :: ============================================================================================================
