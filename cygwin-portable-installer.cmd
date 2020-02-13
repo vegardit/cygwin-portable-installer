@@ -289,14 +289,15 @@ echo Creating updater [%Updater_cmd%]...
 (
     echo @echo off
     echo set "CYGWIN_ROOT=%%~dp0cygwin"
-    echo echo.
-    echo echo Granting user [%%USERNAME%%] full access to [%%CYGWIN_ROOT%%]...
-    echo icacls "%%CYGWIN_ROOT%%" /grant "%%USERNAME%%:(CI)(OI)(F)"
     echo.
+    echo echo.
     echo echo ###########################################################
     echo echo # Updating [Cygwin Portable]...
     echo echo ###########################################################
-    echo echo.
+    echo.
+    echo echo Granting user [%%USERNAME%%] full access to [%%CYGWIN_ROOT%%]...
+    echo icacls "%%CYGWIN_ROOT%%" /grant "%%USERNAME%%:(CI)(OI)(F)" ^|^| goto :fail
+    echo.
     echo "%%CYGWIN_ROOT%%\%CYGWIN_SETUP_EXE%" --no-admin ^^
     echo --site %CYGWIN_MIRROR% %CYGWIN_PROXY% ^^
     echo --root "%%CYGWIN_ROOT%%" ^^
@@ -310,14 +311,16 @@ echo Creating updater [%Updater_cmd%]...
     if "%DELETE_CYGWIN_PACKAGE_CACHE%" == "yes" (
         echo rd /s /q "%%CYGWIN_ROOT%%\.pkg-cache"
     )
+    echo.
     echo echo.
     echo echo ###########################################################
     echo echo # Updating [Cygwin Portable] succeeded.
     echo echo ###########################################################
     echo timeout /T 60
     echo goto :eof
-    echo echo.
+    echo.
     echo :fail
+    echo echo.
     echo echo ###########################################################
     echo echo # Updating [Cygwin Portable] FAILED!
     echo echo ###########################################################
