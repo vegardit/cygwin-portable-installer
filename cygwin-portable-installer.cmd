@@ -123,7 +123,7 @@ if not exist "%CYGWIN_ROOT%" (
     md "%CYGWIN_ROOT%" || goto :fail
 ) else (
     echo Granting user [%USERNAME%] full access to Cygwin root [%CYGWIN_ROOT%]...
-    icacls "%CYGWIN_ROOT%" /grant "%USERNAME%:(CI)(OI)(F)" || goto :fail
+    icacls "%CYGWIN_ROOT%" /T /grant "%USERNAME%:(CI)(OI)(F)" || goto :fail
 )
 
 
@@ -296,7 +296,7 @@ echo Creating updater [%Updater_cmd%]...
     echo echo ###########################################################
     echo.
     echo echo Granting user [%%USERNAME%%] full access to [%%CYGWIN_ROOT%%]...
-    echo icacls "%%CYGWIN_ROOT%%" /grant "%%USERNAME%%:(CI)(OI)(F)" ^|^| goto :fail
+    echo icacls "%%CYGWIN_ROOT%%" /T /grant "%%USERNAME%%:(CI)(OI)(F)" ^|^| goto :fail
     echo.
     echo "%%CYGWIN_ROOT%%\%CYGWIN_SETUP_EXE%" --no-admin ^^
     echo --site %CYGWIN_MIRROR% %CYGWIN_PROXY% ^^
