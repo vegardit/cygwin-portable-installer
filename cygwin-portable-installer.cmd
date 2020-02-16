@@ -1,7 +1,7 @@
 @echo off
 
 ::
-:: Copyright 2017-2019 by Vegard IT GmbH (https://vegardit.com) and the cygwin-portable-installer contributors.
+:: Copyright 2017-2020 by Vegard IT GmbH (https://vegardit.com) and the cygwin-portable-installer contributors.
 :: SPDX-License-Identifier: Apache-2.0
 ::
 :: @author Sebastian Thomschke, Vegard IT GmbH
@@ -146,76 +146,7 @@ if "%CYGWIN_ARCH%" == "64" (
 ) else (
     set CYGWIN_SETUP_EXE=setup-x86.exe
 )
-
-if exist "%CYGWIN_ROOT%\%CYGWIN_SETUP_EXE%" (
-    del "%CYGWIN_ROOT%\%CYGWIN_SETUP_EXE%" || goto :fail
-)
-
-where /q curl
-if %ERRORLEVEL% EQU 0 (
-    goto :download_setup_exe_with_curl
-) else (
-    goto :download_setup_exe_with_vbs
-)
-
-:download_setup_exe_with_curl
-    if "%PROXY_HOST%" == "" (
-        set "http_proxy="
-        set "https_proxy="
-    ) else (
-        set http_proxy=http://%PROXY_HOST%:%PROXY_PORT%
-        set https_proxy=http://%PROXY_HOST%:%PROXY_PORT%
-    )
-    echo Downloading 'https://cygwin.org/%CYGWIN_SETUP_EXE%' to '%CYGWIN_ROOT%\%CYGWIN_SETUP_EXE%' using curl...
-    curl https://cygwin.org/%CYGWIN_SETUP_EXE% -# -o "%CYGWIN_ROOT%\%CYGWIN_SETUP_EXE%" || goto :fail
-    goto :download_setup_exe_done
-
-:download_setup_exe_with_vbs
-    :: create VB script that can download files
-    :: not using PowerShell which may be blocked by group policies
-    set DOWNLOADER=%INSTALL_ROOT%downloader.vbs
-    echo Creating [%DOWNLOADER%] script...
-    if "%PROXY_HOST%" == "" (
-        set DOWNLOADER_PROXY=.
-    ) else (
-        set DOWNLOADER_PROXY= req.SetProxy 2, "%PROXY_HOST%:%PROXY_PORT%", ""
-    )
-
-    (
-        echo url = Wscript.Arguments(0^)
-        echo target = Wscript.Arguments(1^)
-        echo On Error Resume Next
-        echo reqType = "MSXML2.XMLHTTP.6.0"
-        echo Set req = CreateObject(reqType^)
-        echo On Error GoTo 0
-        echo If req Is Nothing Then
-        echo   reqType = "WinHttp.WinHttpRequest.5.1"
-        echo   Set req = CreateObject(reqType^)
-        echo End If
-        echo WScript.Echo "Downloading '" ^& url ^& "' to '" ^& target ^& "' using '" ^& reqType ^& "'..."
-        echo%DOWNLOADER_PROXY%
-        echo req.Open "GET", url, False
-        echo req.Send
-        echo If req.Status ^<^> 200 Then
-        echo    WScript.Echo "FAILED to download: HTTP Status " ^& req.Status
-        echo    WScript.Quit 1
-        echo End If
-        echo Set buff = CreateObject("ADODB.Stream"^)
-        echo buff.Open
-        echo buff.Type = 1
-        echo buff.Write req.ResponseBody
-        echo buff.Position = 0
-        echo buff.SaveToFile target
-        echo buff.Close
-        echo.
-    ) >"%DOWNLOADER%" || goto :fail
-
-    cscript //Nologo "%DOWNLOADER%" https://cygwin.org/%CYGWIN_SETUP_EXE% "%CYGWIN_ROOT%\%CYGWIN_SETUP_EXE%" || goto :fail
-    del "%DOWNLOADER%"
-
-    goto :download_setup_exe_done
-
-:download_setup_exe_done
+call :download "https://cygwin.org/%CYGWIN_SETUP_EXE%" "%CYGWIN_ROOT%\%CYGWIN_SETUP_EXE%"
 
 :: Cygwin command line options: https://cygwin.com/faq/faq.html#faq.setup.cli
 if "%PROXY_HOST%" == "" (
@@ -691,6 +622,7 @@ if not "%PROXY_HOST%" == "" (
         echo fi
     ) >>"%Bashrc_sh%" || goto :fail
 )
+
 if "%INSTALL_ANSIBLE%" == "yes" (
     echo Adding Ansible to PATH in [/home/%CYGWIN_USERNAME%/.bashrc]...
     find "ansible" "%Bashrc_sh%" >NUL || (
@@ -701,6 +633,7 @@ if "%INSTALL_ANSIBLE%" == "yes" (
         ) >>"%Bashrc_sh%" || goto :fail
     )
 )
+
 if "%INSTALL_NODEJS%" == "yes" (
     echo Adding Node.js to PATH in [/home/%CYGWIN_USERNAME%/.bashrc]...
     find "NODEJS_HOME" "%Bashrc_sh%" >NUL || (
@@ -714,6 +647,7 @@ if "%INSTALL_NODEJS%" == "yes" (
         ) >>"%Bashrc_sh%" || goto :fail
     )
 )
+
 if "%INSTALL_TESTSSL_SH%" == "yes" (
     echo Adding testssl.sh to PATH in [/home/%CYGWIN_USERNAME%/.bashrc]...
     find "testssl" "%Bashrc_sh%" >NUL || (
@@ -723,6 +657,7 @@ if "%INSTALL_TESTSSL_SH%" == "yes" (
         ) >>"%Bashrc_sh%" || goto :fail
     )
 )
+
 if "%INSTALL_BASH_FUNK%" == "yes" (
     echo Adding bash-funk to [/home/%CYGWIN_USERNAME%/.bashrc]...
     find "bash-funk" "%Bashrc_sh%" >NUL || (
@@ -732,6 +667,7 @@ if "%INSTALL_BASH_FUNK%" == "yes" (
         ) >>"%Bashrc_sh%" || goto :fail
     )
 )
+
 "%CYGWIN_ROOT%\bin\dos2unix" "%Bashrc_sh%" || goto :fail
 
 echo.
@@ -755,3 +691,73 @@ goto :eof
     echo.
     timeout /T 60
     exit /b 1
+
+:download
+    if exist "%2" (
+        echo Deleting existing [%2]...
+        del "%2" || goto :fail
+    )
+
+    where /q curl
+    if %ERRORLEVEL% EQU 0 (
+        call :download_setup_exe_with_curl "%1" "%2"
+    ) else (
+        call :download_setup_exe_with_vbs "%1" "%2"
+    )
+    exit /b 0
+
+:download_with_curl
+    if "%PROXY_HOST%" == "" (
+        set "http_proxy="
+        set "https_proxy="
+    ) else (
+        set http_proxy=http://%PROXY_HOST%:%PROXY_PORT%
+        set https_proxy=http://%PROXY_HOST%:%PROXY_PORT%
+    )
+    echo Downloading '%1' to '%2' using curl...
+    curl "%1" -# -o "%2" || goto :fail
+    exit /b 0
+
+:download_with_vbs
+    :: create VB script that can download files
+    :: not using PowerShell which may be blocked by group policies
+    set DOWNLOADER=%INSTALL_ROOT%downloader.vbs
+    echo Creating [%DOWNLOADER%] script...
+    if "%PROXY_HOST%" == "" (
+        set DOWNLOADER_PROXY=.
+    ) else (
+        set DOWNLOADER_PROXY= req.SetProxy 2, "%PROXY_HOST%:%PROXY_PORT%", ""
+    )
+
+    (
+        echo url = Wscript.Arguments(0^)
+        echo target = Wscript.Arguments(1^)
+        echo On Error Resume Next
+        echo reqType = "MSXML2.XMLHTTP.6.0"
+        echo Set req = CreateObject(reqType^)
+        echo On Error GoTo 0
+        echo If req Is Nothing Then
+        echo   reqType = "WinHttp.WinHttpRequest.5.1"
+        echo   Set req = CreateObject(reqType^)
+        echo End If
+        echo WScript.Echo "Downloading '" ^& url ^& "' to '" ^& target ^& "' using '" ^& reqType ^& "'..."
+        echo%DOWNLOADER_PROXY%
+        echo req.Open "GET", url, False
+        echo req.Send
+        echo If req.Status ^<^> 200 Then
+        echo    WScript.Echo "FAILED to download: HTTP Status " ^& req.Status
+        echo    WScript.Quit 1
+        echo End If
+        echo Set buff = CreateObject("ADODB.Stream"^)
+        echo buff.Open
+        echo buff.Type = 1
+        echo buff.Write req.ResponseBody
+        echo buff.Position = 0
+        echo buff.SaveToFile target
+        echo buff.Close
+        echo.
+    ) >"%DOWNLOADER%" || goto :fail
+
+    cscript //Nologo "%DOWNLOADER%" "%1" "%2" || goto :fail
+    del "%DOWNLOADER%"
+    exit /b 0
