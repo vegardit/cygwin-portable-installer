@@ -113,8 +113,10 @@ echo.
 set "INSTALL_ROOT=%~dp0"
 
 :: load customizations from separate file if exists
-if exist "%INSTALL_ROOT%cygwin-portable-installer-config.cmd" (
-  call "%INSTALL_ROOT%cygwin-portable-installer-config.cmd"
+set "custom_config_file=%INSTALL_ROOT%cygwin-portable-installer-config.cmd"
+if exist "%custom_config_file%" (
+  echo Loading configuration from [%custom_config_file%]...
+  call "%custom_config_file%"
 )
 
 set "CYGWIN_ROOT=%INSTALL_ROOT%cygwin"
@@ -669,6 +671,13 @@ if "%INSTALL_BASH_FUNK%" == "yes" (
 )
 
 "%CYGWIN_ROOT%\bin\dos2unix" "%Bashrc_sh%" || goto :fail
+
+:: execute custom commands after installation
+set "custom_tasks_file=%INSTALL_ROOT%cygwin-portable-installer-post-tasks.cmd"
+if exist "%custom_tasks_file%" (
+  echo Executing post installation tasks [%custom_tasks_file%]...
+  call "%custom_tasks_file%"
+)
 
 echo.
 echo ###########################################################

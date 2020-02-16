@@ -143,6 +143,12 @@ set MINTTY_OPTIONS=--Title cygwin-portable ^
   -o Locale=C
 ```
 
+### <a name="customize"></a>Executing commands after installation
+
+When you place a separate `cygwin-portable-installer-post-tasks.cmd` file next to the `cygwin-portable-installer.cmd` it will be
+executed automatically after the installation suceeded. You can use this file to perform additional configurations.
+
+
 ## <a name="update"></a>Updating your installation
 
 To update installed Cygwin packages execute the generated `cygwin-portable-updater.cmd` file.
