@@ -125,7 +125,7 @@ if not exist "%CYGWIN_ROOT%" (
     md "%CYGWIN_ROOT%" || goto :fail
 ) else (
     echo Granting user [%USERNAME%] full access to Cygwin root [%CYGWIN_ROOT%]...
-    icacls "%CYGWIN_ROOT%" /T /grant "%USERNAME%:(CI)(OI)(F)" || goto :fail
+    icacls "%CYGWIN_ROOT%" /T /grant "%USERNAME%:(CI)(OI)(F)"
 )
 
 
@@ -229,7 +229,7 @@ echo Creating updater [%Updater_cmd%]...
     echo echo ###########################################################
     echo.
     echo echo Granting user [%%USERNAME%%] full access to [%%CYGWIN_ROOT%%]...
-    echo icacls "%%CYGWIN_ROOT%%" /T /grant "%%USERNAME%%:(CI)(OI)(F)" ^|^| goto :fail
+    echo icacls "%%CYGWIN_ROOT%%" /T /grant "%%USERNAME%%:(CI)(OI)(F)"
     echo.
     echo "%%CYGWIN_ROOT%%\%CYGWIN_SETUP_EXE%" --no-admin ^^
     echo --site %CYGWIN_MIRROR% %CYGWIN_PROXY% ^^
@@ -301,7 +301,7 @@ echo Creating [%Init_sh%]...
     echo #
     echo # Make python3 available as python if python2 is not installed
     echo #
-    echo python3=^$(/usr/bin/find /usr/bin -maxdepth 1 -name "python3.*" -print -quit ^| head -1^)
+    echo python3=$(/usr/bin/find /usr/bin -maxdepth 1 -name "python3.*" -print -quit ^| head -1^)
     echo if [[ -e $python3 ]] ^> /dev/null; then
     echo     [[ -e /usr/bin/python3 ]] ^|^| /usr/sbin/update-alternatives --install /usr/bin/python3 python3 "$python3" 1
     echo     [[ -e /usr/bin/python  ]] ^|^| /usr/sbin/update-alternatives --install /usr/bin/python  python  "$python3" 1
@@ -461,11 +461,11 @@ echo Creating launcher [%Start_cmd%]...
     echo set CYGWIN_DRIVE=%%~d0
     echo set "CYGWIN_ROOT=%%~dp0cygwin"
     echo.
-    echo for %%%%i in ^(adb.exe^) do ^(
-    echo    set "ADB_PATH=%%%%~dp$PATH:i"
-    echo ^)
+    echo set "CYGWIN_PATH=%CYGWIN_PATH%;%%CYGWIN_ROOT%%\bin"
+    echo for /f "tokens=*" %%%%i in ^('where adb.exe 2^^^>NUL'^) do set "CYGWIN_PATH=%%CYGWIN_PATH%%;%%%%i\.."
+    echo for /f "tokens=*" %%%%i in ^('where docker.exe 2^^^>NUL'^) do set "CYGWIN_PATH=%%CYGWIN_PATH%%;%%%%i\.."
+    echo set "PATH=%%CYGWIN_PATH%%"
     echo.
-    echo set "PATH=%CYGWIN_PATH%;%%CYGWIN_ROOT%%\bin;%%ADB_PATH%%"
     echo set "ALLUSERSPROFILE=%%CYGWIN_ROOT%%\.ProgramData"
     echo set "ProgramData=%%ALLUSERSPROFILE%%"
     echo set CYGWIN=nodosfilewarning
@@ -493,6 +493,7 @@ echo Creating launcher [%Start_cmd%]...
     echo.
     echo %%CYGWIN_DRIVE%%
     echo chdir "%%CYGWIN_ROOT%%\bin"
+    echo echo Loading [%%CYGWIN_ROOT%%\portable-init.sh]...
     echo bash "%%CYGWIN_ROOT%%\portable-init.sh"
     echo.
     :: https://stackoverflow.com/a/8452363/5116073
@@ -709,9 +710,9 @@ goto :eof
 
     where /q curl
     if %ERRORLEVEL% EQU 0 (
-        call :download_setup_exe_with_curl "%1" "%2"
+        call :download_with_curl "%1" "%2"
     ) else (
-        call :download_setup_exe_with_vbs "%1" "%2"
+        call :download_with_vbs "%1" "%2"
     )
     exit /b 0
 
@@ -742,11 +743,11 @@ goto :eof
         echo url = Wscript.Arguments(0^)
         echo target = Wscript.Arguments(1^)
         echo On Error Resume Next
-        echo reqType = "MSXML2.XMLHTTP.6.0"
+        echo reqType = "WinHttp.WinHttpRequest.5.1"
         echo Set req = CreateObject(reqType^)
         echo On Error GoTo 0
         echo If req Is Nothing Then
-        echo   reqType = "WinHttp.WinHttpRequest.5.1"
+        echo   reqType = "MSXML2.XMLHTTP.6.0"
         echo   Set req = CreateObject(reqType^)
         echo End If
         echo WScript.Echo "Downloading '" ^& url ^& "' to '" ^& target ^& "' using '" ^& reqType ^& "'..."
