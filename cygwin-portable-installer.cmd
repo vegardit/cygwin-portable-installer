@@ -725,7 +725,7 @@ goto :eof
         set https_proxy=http://%PROXY_HOST%:%PROXY_PORT%
     )
     echo Downloading '%1' to '%2' using curl...
-    curl "%1" -# -o "%2" || goto :fail
+    curl %1 -# -o "%2" || goto :fail
     exit /b 0
 
 :download_with_vbs
