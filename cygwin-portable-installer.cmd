@@ -703,16 +703,16 @@ goto :eof
     exit /b 1
 
 :download
-    if exist "%2" (
+    if exist %2 (
         echo Deleting existing [%2]...
-        del "%2" || goto :fail
+        del %2 || goto :fail
     )
 
     where /q curl
     if %ERRORLEVEL% EQU 0 (
-        call :download_with_curl "%1" "%2"
+        call :download_with_curl %1 %2
     ) else (
-        call :download_with_vbs "%1" "%2"
+        call :download_with_vbs %1 %2
     )
     exit /b 0
 
@@ -724,8 +724,8 @@ goto :eof
         set http_proxy=http://%PROXY_HOST%:%PROXY_PORT%
         set https_proxy=http://%PROXY_HOST%:%PROXY_PORT%
     )
-    echo Downloading '%1' to '%2' using curl...
-    curl %1 -# -o "%2" || goto :fail
+    echo Downloading %1 to %2 using curl...
+    curl %1 -# -o %2 || goto :fail
     exit /b 0
 
 :download_with_vbs
@@ -768,6 +768,6 @@ goto :eof
         echo.
     ) >"%DOWNLOADER%" || goto :fail
 
-    cscript //Nologo "%DOWNLOADER%" "%1" "%2" || goto :fail
+    cscript //Nologo "%DOWNLOADER%" %1 %2 || goto :fail
     del "%DOWNLOADER%"
     exit /b 0
