@@ -646,6 +646,9 @@ if "%INSTALL_NODEJS%" == "yes" (
             REM echo export NVM_DIR="/opt/nvm"
             REM echo [ -s "$NVM_DIR/nvm.sh" ] ^&^& \. "$NVM_DIR/nvm.sh"  # This loads nvm
             echo export NODEJS_HOME=/opt/nodejs/current
+            REM https://github.com/vegardit/cygwin-portable-installer/issues/23
+            echo function npm^(^) { cmd /c $^(cygpath -w $NODEJS_HOME/npm.cmd^) "$@"; }
+            echo export -f npm
             echo export PATH="$PATH:$NODEJS_HOME"
         ) >>"%Bashrc_sh%" || goto :fail
     )
