@@ -46,7 +46,7 @@ disabled for non-administrative users via group policies.
          git clone https://github.com/vegardit/cygwin-portable-installer --single-branch --branch master --depth 1 C:\apps\cygwin-portable
          ```
 1. (Optional) Open the file [cygwin-portable-installer.cmd](cygwin-portable-installer.cmd) in a text editor and adjust the configuration variables to e.g. set an HTTP Proxy, change the set of pre-installed Cygwin packages, select the terminal (ConEmu or Mintty), etc.
-1. (Optional) Temporarily disable your Antivirus scanner in case it is known to interfer with Cygwin, otherwise you may end-up with a broken/incomplete installation. See [cygwin.com/faq: What applications have been found to interfere with Cygwin?](https://cygwin.com/faq/faq.html#faq.using.bloda)
+1. (Optional) Temporarily disable your Antivirus scanner in case it is known to interfere with Cygwin, otherwise you may end-up with a broken/incomplete installation. See [cygwin.com/faq: What applications have been found to interfere with Cygwin?](https://cygwin.com/faq/faq.html#faq.using.bloda)
    * For **BitDefender Antivirus** the **Advanced Thread Defense** protection feature needs to be disabled and not the **Antivirus > Settings > BitDefender Shield**.
 1. Execute the `cygwin-portable-installer.cmd`. This will automatically:
     1. download the 32-bit or 64-bit Cygwin setup.exe depending on your OS
