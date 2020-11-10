@@ -42,7 +42,7 @@ set CYGWIN_ARCH=auto
 set CYGWIN_USERNAME=root
 
 :: select the packages to be installed automatically via apt-cyg
-set CYGWIN_PACKAGES=bash-completion,bc,curl,expect,git,git-svn,gnupg,inetutils,lz4,mc,nc,openssh,openssl,perl,psmisc,python37,pv,rsync,ssh-pageant,screen,subversion,unzip,vim,wget,zip,zstd
+set CYGWIN_PACKAGES=dos2unix,coreutils,bzip,bash-completion,bc,curl,expect,git,git-svn,gnupg,inetutils,lz4,mc,nc,openssh,openssl,perl,psmisc,python37,pv,rsync,ssh-pageant,screen,subversion,unzip,vim,wget,zip,zstd
 
 :: if set to 'yes' the local package cache created by cygwin setup will be deleted after installation/update
 set DELETE_CYGWIN_PACKAGE_CACHE=no
@@ -54,21 +54,21 @@ set INSTALL_APT_CYG=yes
 set INSTALL_BASH_FUNK=yes
 
 :: if set to 'yes' Node.js (https://nodejs.org/) will be installed automatically
-set INSTALL_NODEJS=yes
+set INSTALL_NODEJS=no
 :: Use of the folder names found here https://nodejs.org/dist/ as version name.
 set NODEJS_VERSION=latest-v12.x
 :: one of: auto,64,32 - specifies if 32 or 64 bit version should be installed or automatically detected based on current OS architecture
 set NODEJS_ARCH=auto
 
 :: if set to 'yes' Ansible (https://github.com/ansible/ansible) will be installed automatically
-set INSTALL_ANSIBLE=yes
+set INSTALL_ANSIBLE=no
 set ANSIBLE_GIT_BRANCH=stable-2.9
 
 :: if set to 'yes' AWS CLI (https://github.com/aws/aws-cli) will be installed automatically
-set INSTALL_AWS_CLI=yes
+set INSTALL_AWS_CLI=no
 
 :: if set to 'yes' testssl.sh (https://testssl.sh/) will be installed automatically
-set INSTALL_TESTSSL_SH=yes
+set INSTALL_TESTSSL_SH=no
 :: name of the GIT branch to install from, see https://github.com/drwetter/testssl.sh/
 set TESTSSL_GIT_BRANCH=3.0
 
@@ -149,6 +149,7 @@ if "%CYGWIN_ARCH%" == "64" (
     set CYGWIN_SETUP_EXE=setup-x86.exe
 )
 call :download "https://cygwin.org/%CYGWIN_SETUP_EXE%" "%CYGWIN_ROOT%\%CYGWIN_SETUP_EXE%"
+
 
 :: Cygwin command line options: https://cygwin.com/faq/faq.html#faq.setup.cli
 if "%PROXY_HOST%" == "" (
@@ -703,7 +704,7 @@ goto :eof
     echo ###########################################################
     echo.
     timeout /T 60
-    exit /b 1
+    EXIT /B %ERRORLEVEL%
 
 :download
     if exist %2 (
@@ -713,11 +714,18 @@ goto :eof
 
     where /q curl
     if %ERRORLEVEL% EQU 0 (
-        call :download_with_curl %1 %2
-    ) else (
-        call :download_with_vbs %1 %2
-    )
-    exit /b 0
+        set call :download_with_curl %1 %2
+	)
+	
+	if %ERRORLEVEL% EQU 1 (
+	cscript /?
+	) else ( call :download_with_vbs
+	)
+		
+	
+	if %ERRORLEVEL% EQU 1 (
+		 call :download_with_powershell %1 %2)
+	EXIT /B %ERRORLEVEL%
 
 :download_with_curl
     if "%PROXY_HOST%" == "" (
@@ -728,8 +736,8 @@ goto :eof
         set https_proxy=http://%PROXY_HOST%:%PROXY_PORT%
     )
     echo Downloading %1 to %2 using curl...
-    curl %1 -# -o %2 || goto :fail
-    exit /b 0
+    curl %1 -# -o %2  
+    EXIT /B %ERRORLEVEL%
 
 :download_with_vbs
     :: create VB script that can download files
@@ -771,6 +779,18 @@ goto :eof
         echo.
     ) >"%DOWNLOADER%" || goto :fail
 
-    cscript //Nologo "%DOWNLOADER%" %1 %2 || goto :fail
+    cscript //Nologo "%DOWNLOADER%" %1 %2  
     del "%DOWNLOADER%"
-    exit /b 0
+    EXIT /B %ERRORLEVEL%
+	
+	:download_with_powershell
+    if "%PROXY_HOST%" == "" (
+        set "http_proxy="
+        set "https_proxy="
+    ) else (
+        set http_proxy=http://%PROXY_HOST%:%PROXY_PORT%
+        set https_proxy=http://%PROXY_HOST%:%PROXY_PORT%
+    )
+    echo Downloading %1 to %2 using powershell...
+    powershell "(New-Object Net.WebClient).DownloadFile('%1', '%2')"   || goto :fail
+    EXIT /B %ERRORLEVEL%
