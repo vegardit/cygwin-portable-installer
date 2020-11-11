@@ -27,9 +27,9 @@ disabled for non-administrative users via group policies.
 * **256-color multi-tabbed shell**: [ConEmu](https://conemu.github.io/) is pre-configured as terminal by default. Alternatively you can choose to use the single tabbed [Mintty](https://mintty.github.io/) terminal.
 * **command-line package installer**: [apt-cyg](https://github.com/kou1okada/apt-cyg) package manager will be automatically installed (opt-out via config parameter is possible)
 * **adaptive Bash prompt**: [bash-funk](https://github.com/vegardit/bash-funk) will be automatically installed (opt-out via config parameter is possible)
-* additional tools (opt-out via config parameter is possible):
+* additional optional tools:
     * [Ansible](https://github.com/ansible/ansible): deployment automation tool
-    * [AWS CLI](https://github.com/aws/aws-cli): AWS cloud commandline tool
+    * [AWS CLI](https://github.com/aws/aws-cli): AWS cloud command-line tool
     * [Node.js](https://nodejs.org): JavaScript runtime
     * [testssl.sh](https://testssl.sh/): command line tool to check SSL/TLS configurations of servers
 
@@ -55,10 +55,11 @@ disabled for non-administrative users via group policies.
     1. create an init scripts that will keep the installation portable
     1. install the [apt-cyg](https://github.com/kou1okada/apt-cyg) command-line package manager
     1. install the [bash-funk](https://github.com/vegardit/bash-funk) Bash toolbox with it's adaptive Bash prompt
-    1. install [Ansible](https://github.com/ansible/ansible)
-    1. install [AWS CLI](https://github.com/aws/aws-cli)
-    1. install [Node.js](https://nodejs.org)
-    1. install [testssl.sh](https://testssl.sh/)
+    1. install optional toos:
+       1. [Ansible](https://github.com/ansible/ansible)
+       1. [AWS CLI](https://github.com/aws/aws-cli)
+       1. [Node.js](https://nodejs.org)
+       1. [testssl.sh](https://testssl.sh/)
 1. Now you can launch your portable Cygwin environment using the newly created `cygwin-portable.cmd` batch file.
     ![Launch Script](docs/img/launch_script.png)
 
@@ -105,7 +106,7 @@ set NODEJS_ARCH=auto
 
 :: if set to 'yes' Ansible (https://github.com/ansible/ansible) will be installed automatically
 set INSTALL_ANSIBLE=yes
-set ANSIBLE_GIT_BRANCH=stable-2.9
+set ANSIBLE_GIT_BRANCH=stable-2.10
 
 :: if set to 'yes' AWS CLI (https://github.com/aws/aws-cli) will be installed automatically
 set INSTALL_AWS_CLI=yes
@@ -113,7 +114,7 @@ set INSTALL_AWS_CLI=yes
 :: if set to 'yes' testssl.sh (https://testssl.sh/) will be installed automatically
 set INSTALL_TESTSSL_SH=yes
 :: name of the GIT branch to install from, see https://github.com/drwetter/testssl.sh/
-set TESTSSL_GIT_BRANCH=v2.9.5-8
+set TESTSSL_GIT_BRANCH=3.0
 
 :: use ConEmu based tabbed terminal instead of Mintty based single window terminal, see https://conemu.github.io/
 set INSTALL_CONEMU=yes

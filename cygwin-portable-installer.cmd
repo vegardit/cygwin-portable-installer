@@ -42,7 +42,7 @@ set CYGWIN_ARCH=auto
 set CYGWIN_USERNAME=root
 
 :: select the packages to be installed automatically via apt-cyg
-set CYGWIN_PACKAGES=dos2unix,coreutils,bzip,bash-completion,bc,curl,expect,git,git-svn,gnupg,inetutils,lz4,mc,nc,openssh,openssl,perl,psmisc,python37,pv,rsync,ssh-pageant,screen,subversion,unzip,vim,wget,zip,zstd
+set CYGWIN_PACKAGES=bash-completion,bc,bzip,coreutils,curl,dos2unix,expect,git,git-svn,gnupg,inetutils,lz4,mc,nc,openssh,openssl,perl,psmisc,python37,pv,rsync,ssh-pageant,screen,subversion,unzip,vim,wget,zip,zstd
 
 :: if set to 'yes' the local package cache created by cygwin setup will be deleted after installation/update
 set DELETE_CYGWIN_PACKAGE_CACHE=no
@@ -62,7 +62,7 @@ set NODEJS_ARCH=auto
 
 :: if set to 'yes' Ansible (https://github.com/ansible/ansible) will be installed automatically
 set INSTALL_ANSIBLE=no
-set ANSIBLE_GIT_BRANCH=stable-2.9
+set ANSIBLE_GIT_BRANCH=stable-2.10
 
 :: if set to 'yes' AWS CLI (https://github.com/aws/aws-cli) will be installed automatically
 set INSTALL_AWS_CLI=no
@@ -115,8 +115,8 @@ set "INSTALL_ROOT=%~dp0"
 :: load customizations from separate file if exists
 set "custom_config_file=%INSTALL_ROOT%cygwin-portable-installer-config.cmd"
 if exist "%custom_config_file%" (
-  echo Loading configuration from [%custom_config_file%]...
-  call "%custom_config_file%"
+    echo Loading configuration from [%custom_config_file%]...
+    call "%custom_config_file%"
 )
 
 set "CYGWIN_ROOT=%INSTALL_ROOT%cygwin"
@@ -259,7 +259,7 @@ echo Creating updater [%Updater_cmd%]...
     echo echo # Updating [Cygwin Portable] FAILED!
     echo echo ###########################################################
     echo timeout /T 60
-    echo exit /1
+    echo exit 1
 ) >"%Updater_cmd%" || goto :fail
 
 set "Cygwin_bat=%CYGWIN_ROOT%\Cygwin.bat"
@@ -695,6 +695,7 @@ timeout /T 60
 goto :eof
 
 :fail
+    set exit_code=%ERRORLEVEL%
     if exist "%DOWNLOADER%" (
         del "%DOWNLOADER%"
     )
@@ -704,7 +705,7 @@ goto :eof
     echo ###########################################################
     echo.
     timeout /T 60
-    EXIT /B %ERRORLEVEL%
+    exit /B %exit_code%
 
 :download
     if exist %2 (
@@ -714,18 +715,17 @@ goto :eof
 
     where /q curl
     if %ERRORLEVEL% EQU 0 (
-        set call :download_with_curl %1 %2
-	)
-	
-	if %ERRORLEVEL% EQU 1 (
-	cscript /?
-	) else ( call :download_with_vbs
-	)
-		
-	
-	if %ERRORLEVEL% EQU 1 (
-		 call :download_with_powershell %1 %2)
-	EXIT /B %ERRORLEVEL%
+        call :download_with_curl %1 %2
+    )
+
+    if errorlevel 1 (
+        call :download_with_vbs %1 %2
+    )
+
+    if errorlevel 1 (
+        call :download_with_powershell %1 %2 || goto :fail
+    )
+    exit /B 0
 
 :download_with_curl
     if "%PROXY_HOST%" == "" (
@@ -736,8 +736,8 @@ goto :eof
         set https_proxy=http://%PROXY_HOST%:%PROXY_PORT%
     )
     echo Downloading %1 to %2 using curl...
-    curl %1 -# -o %2  
-    EXIT /B %ERRORLEVEL%
+    curl %1 -# -o %2 || goto :fail
+    exit /B 0
 
 :download_with_vbs
     :: create VB script that can download files
@@ -779,11 +779,11 @@ goto :eof
         echo.
     ) >"%DOWNLOADER%" || goto :fail
 
-    cscript //Nologo "%DOWNLOADER%" %1 %2  
+    cscript //Nologo "%DOWNLOADER%" %1 %2 || goto :fail
     del "%DOWNLOADER%"
-    EXIT /B %ERRORLEVEL%
-	
-	:download_with_powershell
+    exit /B 0
+
+:download_with_powershell
     if "%PROXY_HOST%" == "" (
         set "http_proxy="
         set "https_proxy="
@@ -792,5 +792,4 @@ goto :eof
         set https_proxy=http://%PROXY_HOST%:%PROXY_PORT%
     )
     echo Downloading %1 to %2 using powershell...
-    powershell "(New-Object Net.WebClient).DownloadFile('%1', '%2')"   || goto :fail
-    EXIT /B %ERRORLEVEL%
+    powershell "(New-Object Net.WebClient).DownloadFile('%1', '%2')" || goto :fail
