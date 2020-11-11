@@ -19,8 +19,9 @@
 :: - testssl.sh (command line tool to check SSL/TLS configurations of servers, see https://testssl.sh/)
 
 :: if executed with "--debug" print all executed commands
-if [%1]==[--debug] echo on
-
+for %%a in (%*) do (
+    if [%%~a]==[--debug] echo on
+)
 
 :: ============================================================================================================
 :: CONFIG CUSTOMIZATION START
@@ -259,7 +260,7 @@ echo Creating updater [%Updater_cmd%]...
     echo echo # Updating [Cygwin Portable] FAILED!
     echo echo ###########################################################
     echo timeout /T 60
-    echo exit 1
+    echo exit /B 1
 ) >"%Updater_cmd%" || goto :fail
 
 set "Cygwin_bat=%CYGWIN_ROOT%\Cygwin.bat"
@@ -691,8 +692,11 @@ echo ###########################################################
 echo.
 echo Use [%Start_cmd%] to launch Cygwin Portable.
 echo.
-timeout /T 60
-goto :eof
+
+:: adding "|| exit /B 0" to prevent "ERROR: Input redirection is not supported, exiting the process immediately."
+:: when installer is executed non-interactive
+timeout /T 60 || exit /B 0
+exit /B 0
 
 :fail
     set exit_code=%ERRORLEVEL%

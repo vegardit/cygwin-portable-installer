@@ -1,5 +1,6 @@
 # cygwin-portable-installer <a href="https://github.com/vegardit/cygwin-portable-installer" title="GitHub Repo"><img height="30" src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/github.svg?sanitize=true"></a> <a href="https://ansible.com" title="Ansible"><img align="right" height="48" src="https://avatars0.githubusercontent.com/u/1507452?s=48&v=4"></a> <a href="https://mintty.github.io/" title="MinTTY"><img align="right" src="https://raw.githubusercontent.com/mintty/mintty/master/icon/terminal-48.png"></a><a href="https://conemu.github.io/" title="ConEmu"><img align="right" src="https://raw.githubusercontent.com/Maximus5/ConEmu/master/logo/logo-48.png"></a> <a href="https://www.cygwin.com/" title="CygWin"><img align="right" height="48" src="https://upload.wikimedia.org/wikipedia/commons/2/29/Cygwin_logo.svg"></a>
 
+[![Build Status](https://github.com/vegardit/cygwin-portable-installer/workflows/Build/badge.svg "GitHub Actions")](https://github.com/vegardit/cygwin-portable-installer/actions?query=workflow%3ABuild)
 [![License](https://img.shields.io/github/license/vegardit/cygwin-portable-installer.svg?label=license)](#license)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
 
