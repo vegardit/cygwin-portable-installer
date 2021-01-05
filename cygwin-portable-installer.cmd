@@ -478,7 +478,7 @@ echo Creating launcher [%Start_cmd%]...
     echo set "HOME=/home/%%USERNAME%%"
     echo set SHELL=/bin/bash
     echo set HOMEDRIVE=%%CYGWIN_DRIVE%%
-    echo set "HOMEPATH=%%CYGWIN_ROOT%%\home\%%USERNAME%%"
+    echo set "HOMEPATH=%%~p0cygwin\home\%%USERNAME%%"
     echo set GROUP=None
     echo set GRP=
     echo.
