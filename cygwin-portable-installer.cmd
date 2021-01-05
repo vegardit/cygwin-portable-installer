@@ -298,7 +298,9 @@ echo Creating [%Init_sh%]...
     echo # adjust Cygwin packages cache path
     echo #
     echo pkg_cache_dir=$(cygpath -w "$CYGWIN_ROOT/.pkg-cache"^)
-    echo sed -i -E "s/.*\\\.pkg-cache/"$'\t'"${pkg_cache_dir//\\/\\\\}/" /etc/setup/setup.rc
+    echo # not using "sed -i" to prevent "sed: preserving permissions for ‘/etc/setup/sedVf6T9x’: Permission denied"
+    echo sed -E "s/.*\\\cygwin-pkg-cache/"$'\t'"${pkg_cache_dir//\\/\\\\}/" /etc/setup/setup.rc ^> /etc/setup/setup.rc.mod
+    echo mv -f /etc/setup/setup.rc.mod /etc/setup/setup.rc
     echo.
     echo #
     echo # Make python3 available as python if python2 is not installed
