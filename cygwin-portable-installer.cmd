@@ -164,7 +164,7 @@ if "%PROXY_HOST%" == "" (
 )
 
 if "%INSTALL_APT_CYG%" == "yes" (
- set CYGWIN_PACKAGES=wget,ca-certificates,gnupg,%CYGWIN_PACKAGES%
+  set CYGWIN_PACKAGES=ca-certificates,gnupg,iconv,wget,%CYGWIN_PACKAGES%
 )
 
 :: https://blogs.msdn.microsoft.com/david.wang/2006/03/27/howto-detect-process-bitness/
@@ -317,8 +317,8 @@ echo Creating [%Init_sh%]...
   echo.
   if not "%PROXY_HOST%" == "" (
     echo if [[ $HOSTNAME == "%COMPUTERNAME%" ]]; then
-    echo     export http_proxy=http://%PROXY_HOST%:%PROXY_PORT%
-    echo     export https_proxy=$http_proxy
+    echo   export http_proxy=http://%PROXY_HOST%:%PROXY_PORT%
+    echo   export https_proxy=$http_proxy
     echo fi
   )
   if "%INSTALL_CONEMU%" == "yes" (
@@ -579,8 +579,8 @@ if "%INSTALL_CONEMU%" == "yes" (
     echo   ^<value name="StatusFontHeight" type="long" data="12"/^>
     echo   ^<value name="TabFontHeight" type="long" data="12"/^>
     echo   ^<key name="HotKeys"^>
-    echo      ^<value name="KeyMacro01" type="dword" data="00001157"/^>
-    echo      ^<value name="KeyMacro01.Text" type="string" data="Close(1,1)"/^>
+    echo     ^<value name="KeyMacro01" type="dword" data="00001157"/^>
+    echo     ^<value name="KeyMacro01.Text" type="string" data="Close(1,1)"/^>
     echo   ^</key^>
     echo   ^<value name="FontName" type="string" data="Courier New"/^>
     echo   ^<value name="Anti-aliasing" type="ulong" data="3"/^>
