@@ -78,6 +78,10 @@ set INSTALL_CONEMU=yes
 set CON_EMU_OPTIONS=-Title cygwin-portable ^
  -QuitOnClose
 
+:: if set to 'yes' the winpty (https://github.com/rprichard/winpty) will be installed automatically
+set INSTALL_WINPTY=yes
+set WINPTY_VERSION=0.4.3
+
 :: add more path if required, but at the cost of runtime performance (e.g. slower forks)
 set "CYGWIN_PATH=%%SystemRoot%%\system32;%%SystemRoot%%"
 
@@ -393,8 +397,7 @@ echo Creating [%Init_sh%]...
     echo     svn checkout https://github.com/vegardit/bash-funk/trunk /opt/bash-funk
     echo   else
     echo     mkdir /opt/bash-funk ^&^& \
-    echo     cd /opt/bash-funk ^&^& \
-    echo     wget -qO- --show-progress https://github.com/vegardit/bash-funk/tarball/master ^| tar -xzv --strip-components 1
+    echo     wget -qO- --show-progress https://github.com/vegardit/bash-funk/tarball/master ^| /usr/bin/tar xzv -C /opt/bash-funk --strip-components 1
     echo   fi
     echo fi
   )
@@ -446,10 +449,28 @@ echo Creating [%Init_sh%]...
     echo     svn checkout https://github.com/drwetter/testssl.sh/tags/%TESTSSL_GIT_BRANCH% /opt/testssl
     echo   else
     echo     mkdir /opt/testssl ^&^& \
-    echo     cd /opt/testssl ^&^& \
-    echo     wget -qO- --show-progress https://github.com/drwetter/testssl.sh/tarball/%TESTSSL_GIT_BRANCH% ^| tar -xzv --strip-components 1
+    echo     wget -qO- --show-progress https://github.com/drwetter/testssl.sh/tarball/%TESTSSL_GIT_BRANCH% ^| /usr/bin/tar xzv -C /opt/testssl --strip-components 1
     echo   fi
     echo   chmod +x /opt/testssl/testssl.sh
+    echo fi
+  )
+  if "%INSTALL_WINPTY%" == "yes" (
+    echo.
+    echo #
+    echo # Installing winpty if not yet installed
+    echo #
+    echo if [[ ! -e /bin/winpty.exe ]]; then
+    echo   echo "*******************************************************************************"
+    echo   echo "* Installing [winpty - %WINPTY_VERSION%]..."
+    echo   echo "*******************************************************************************"
+    echo   if [ $(uname -m^) == "x86_64" ]; then
+    echo     winpty_download_url=https://github.com/rprichard/winpty/releases/download/0.4.3/winpty-%WINPTY_VERSION%-cygwin-2.8.0-x64.tar.gz
+    echo   else
+    echo     winpty_download_url=https://github.com/rprichard/winpty/releases/download/0.4.3/winpty-%WINPTY_VERSION%-cygwin-2.8.0-ia32.tar.gz
+    echo   fi
+    echo   cd /
+    echo   echo $winpty_download_url
+    echo   wget -qO- --show-progress $winpty_download_url ^| /usr/bin/tar xzv -C / --strip-components 1
     echo fi
   )
 ) >"%Init_sh%" || goto :fail

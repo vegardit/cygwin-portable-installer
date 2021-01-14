@@ -28,7 +28,8 @@ disabled for non-administrative users via group policies.
 * **256-color multi-tabbed shell**: [ConEmu](https://conemu.github.io/) is pre-configured as terminal by default. Alternatively you can choose to use the single tabbed [Mintty](https://mintty.github.io/) terminal.
 * **command-line package installer**: [apt-cyg](https://github.com/kou1okada/apt-cyg) package manager will be automatically installed (opt-out via config parameter is possible)
 * **adaptive Bash prompt**: [bash-funk](https://github.com/vegardit/bash-funk) will be automatically installed (opt-out via config parameter is possible)
-* additional optional tools:
+* **[winpty](https://github.com/rprichard/winpty)** will be automatically installed (opt-out via config parameter is possible)
+* additional optional tools (opt-in via config parameter):
     * [Ansible](https://github.com/ansible/ansible): deployment automation tool
     * [AWS CLI](https://github.com/aws/aws-cli): AWS cloud command-line tool
     * [Node.js](https://nodejs.org): JavaScript runtime
@@ -56,7 +57,8 @@ disabled for non-administrative users via group policies.
     1. create an init scripts that will keep the installation portable
     1. install the [apt-cyg](https://github.com/kou1okada/apt-cyg) command-line package manager
     1. install the [bash-funk](https://github.com/vegardit/bash-funk) Bash toolbox with it's adaptive Bash prompt
-    1. install optional toos:
+    1. install [winpty](https://github.com/rprichard/winpty)
+    1. install optional tools:
        1. [Ansible](https://github.com/ansible/ansible)
        1. [AWS CLI](https://github.com/aws/aws-cli)
        1. [Node.js](https://nodejs.org)
@@ -78,7 +80,7 @@ set PROXY_HOST=
 set PROXY_PORT=8080
 
 :: change the URL to the closest mirror https://cygwin.com/mirrors.html
-set CYGWIN_MIRROR=http://linux.rz.ruhr-uni-bochum.de/download/cygwin
+set CYGWIN_MIRROR=https://linux.rz.ruhr-uni-bochum.de/download/cygwin
 
 :: one of: auto,64,32 - specifies if 32 or 64 bit version should be installed or automatically detected based on current OS architecture
 set CYGWIN_ARCH=auto
@@ -87,7 +89,7 @@ set CYGWIN_ARCH=auto
 set CYGWIN_USERNAME=root
 
 :: select the packages to be installed automatically via apt-cyg
-set CYGWIN_PACKAGES=bash-completion,bc,curl,expect,git,git-svn,gnupg,inetutils,lz4,mc,nc,openssh,openssl,perl,psmisc,python37,pv,rsync,ssh-pageant,screen,subversion,unzip,vim,wget,zip,zstd
+set CYGWIN_PACKAGES=bash-completion,bc,bzip,coreutils,curl,dos2unix,expect,git,git-svn,gnupg,inetutils,jq,lz4,mc,nc,openssh,openssl,perl,psmisc,python37,pv,rsync,ssh-pageant,screen,subversion,unzip,vim,wget,zip,zstd
 
 :: if set to 'yes' the local package cache created by cygwin setup will be deleted after installation/update
 set DELETE_CYGWIN_PACKAGE_CACHE=no
@@ -101,7 +103,7 @@ set INSTALL_BASH_FUNK=yes
 :: if set to 'yes' Node.js (https://nodejs.org/) will be installed automatically
 set INSTALL_NODEJS=yes
 :: Use of the folder names found here https://nodejs.org/dist/ as version name.
-set NODEJS_VERSION=latest-v12.x
+set NODEJS_VERSION=latest-v14.x
 :: one of: auto,64,32 - specifies if 32 or 64 bit version should be installed or automatically detected based on current OS architecture
 set NODEJS_ARCH=auto
 
@@ -121,6 +123,10 @@ set TESTSSL_GIT_BRANCH=3.0
 set INSTALL_CONEMU=yes
 set CON_EMU_OPTIONS=-Title cygwin-portable ^
  -QuitOnClose
+
+:: if set to 'yes' the winpty (https://github.com/rprichard/winpty) will be installed automatically
+set INSTALL_WINPTY=yes
+set WINPTY_VERSION=0.4.3
 
 :: add more path if required, but at the cost of runtime performance (e.g. slower forks)
 set CYGWIN_PATH=%%SystemRoot%%\system32;%%SystemRoot%%
