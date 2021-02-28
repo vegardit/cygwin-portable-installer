@@ -1,7 +1,7 @@
 @echo off
 
 ::
-:: Copyright 2017-2020 by Vegard IT GmbH (https://vegardit.com) and the cygwin-portable-installer contributors.
+:: Copyright 2017-2021 by Vegard IT GmbH (https://vegardit.com) and the cygwin-portable-installer contributors.
 :: SPDX-License-Identifier: Apache-2.0
 ::
 :: @author Sebastian Thomschke, Vegard IT GmbH
