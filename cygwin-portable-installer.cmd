@@ -164,7 +164,7 @@ if "%PROXY_HOST%" == "" (
 )
 
 if "%INSTALL_APT_CYG%" == "yes" (
-  set CYGWIN_PACKAGES=ca-certificates,gnupg,iconv,wget,%CYGWIN_PACKAGES%
+  set CYGWIN_PACKAGES=ca-certificates,gnupg,libiconv,wget,%CYGWIN_PACKAGES%
 )
 
 :: https://blogs.msdn.microsoft.com/david.wang/2006/03/27/howto-detect-process-bitness/
@@ -205,6 +205,8 @@ if "%INSTALL_TESTSSL_SH%" == "yes" (
   set CYGWIN_PACKAGES=bind-utils,%CYGWIN_PACKAGES%
 )
 
+set CYGWIN_PACKAGES=dos2unix,wget,%CYGWIN_PACKAGES%
+echo Selected cygwin packages: %CYGWIN_PACKAGES%
 
 echo Running Cygwin setup...
 "%CYGWIN_ROOT%\%CYGWIN_SETUP_EXE%" --no-admin ^
@@ -217,7 +219,7 @@ echo Running Cygwin setup...
   --upgrade-also ^
   --no-replaceonreboot ^
   --quiet-mode ^
-  --packages dos2unix,wget,%CYGWIN_PACKAGES% || goto :fail
+  --packages %CYGWIN_PACKAGES% || goto :fail
 
 if "%DELETE_CYGWIN_PACKAGE_CACHE%" == "yes" (
   rd /s /q "%CYGWIN_ROOT%\.pkg-cache"

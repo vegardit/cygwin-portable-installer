@@ -14,19 +14,24 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - name: Git Checkout
+    - name: "SCM Checkout"
       uses: actions/checkout@v2 #https://github.com/actions/checkout
 
-    - name: Cache cygwin packages repository
+    - name: "Cache: cygwin packages repository"
       uses: actions/cache@v2
       with:
         path: cygwin\.pkg-cache
         key: ${{ runner.os }}-cygwinrepo
 
-    - name: Install cygwin-portable
+    - name: "Install: cygwin-portable"
       shell: cmd
       run: call .\cygwin-portable-installer.cmd
 
-    - name: Running cygwin-portable
+    - name: "Test: Start cygwin-portable"
       shell: cmd
       run: call .\cygwin-portable.cmd "bash --version"
+      
+    - name: "Test: apt-cyg update"
+      shell: cmd
+      run: call .\cygwin-portable.cmd "apt-cyg update"
+      
