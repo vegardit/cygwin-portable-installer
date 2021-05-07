@@ -739,12 +739,13 @@ exit /B 0
   )
 
   if errorlevel 1 (
-    call :download_with_vbs %1 %2
+    call :download_with_powershell %1 %2
   )
 
   if errorlevel 1 (
-    call :download_with_powershell %1 %2 || goto :fail
+    call :download_with_vbs %1 %2 || goto :fail
   )
+
   exit /B 0
 
 :download_with_curl
@@ -756,7 +757,7 @@ exit /B 0
     set https_proxy=http://%PROXY_HOST%:%PROXY_PORT%
   )
   echo Downloading %1 to %2 using curl...
-  curl %1 -# -o %2 || goto :fail
+  curl %1 -# -o %2 || exit /B 1
   exit /B 0
 
 :download_with_vbs
@@ -776,7 +777,6 @@ exit /B 0
     echo On Error Resume Next
     echo reqType = "WinHttp.WinHttpRequest.5.1"
     echo Set req = CreateObject(reqType^)
-    echo On Error GoTo 0
     echo If req Is Nothing Then
     echo   reqType = "MSXML2.XMLHTTP.6.0"
     echo   Set req = CreateObject(reqType^)
@@ -785,6 +785,9 @@ exit /B 0
     echo%DOWNLOADER_PROXY%
     echo req.Open "GET", url, False
     echo req.Send
+    echo If Err.Number ^<^> 0 Then
+    echo   WScript.Quit 1
+    echo End If
     echo If req.Status ^<^> 200 Then
     echo   WScript.Echo "FAILED to download: HTTP Status " ^& req.Status
     echo   WScript.Quit 1
@@ -799,7 +802,7 @@ exit /B 0
     echo.
   ) >"%DOWNLOADER%" || goto :fail
 
-  cscript //Nologo "%DOWNLOADER%" %1 %2 || goto :fail
+  cscript //Nologo "%DOWNLOADER%" %1 %2 || exit /B 1
   del "%DOWNLOADER%"
   exit /B 0
 
@@ -812,5 +815,5 @@ exit /B 0
     set https_proxy=http://%PROXY_HOST%:%PROXY_PORT%
   )
   echo Downloading %1 to %2 using powershell...
-  powershell "(New-Object Net.WebClient).DownloadFile('%1', '%2')" || goto :fail
+  powershell "[Net.ServicePointManager]::SecurityProtocol = 'tls12, tls11, tls'; (New-Object Net.WebClient).DownloadFile('%1', '%2')" || exit /B 1
   exit /B 0
