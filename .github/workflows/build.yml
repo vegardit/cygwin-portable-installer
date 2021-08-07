@@ -30,8 +30,7 @@ jobs:
     - name: "Test: Start cygwin-portable"
       shell: cmd
       run: call .\cygwin-portable.cmd "bash --version"
-      
+
     - name: "Test: apt-cyg update"
       shell: cmd
       run: call .\cygwin-portable.cmd "apt-cyg update"
-      
