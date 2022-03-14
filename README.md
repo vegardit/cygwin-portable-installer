@@ -45,7 +45,7 @@ disabled for non-administrative users via group policies.
    * Using **Git**:
       1. Clone the project into a local directory, e.g.
          ```batch
-         git clone https://github.com/vegardit/cygwin-portable-installer --single-branch --branch master --depth 1 C:\apps\cygwin-portable
+         git clone https://github.com/vegardit/cygwin-portable-installer --single-branch --branch main --depth 1 C:\apps\cygwin-portable
          ```
 1. (Optional) Open the file [cygwin-portable-installer.cmd](cygwin-portable-installer.cmd) in a text editor and adjust the configuration variables to e.g. set an HTTP Proxy, change the set of pre-installed Cygwin packages, select the terminal (ConEmu or Mintty), etc.
 1. (Optional) Temporarily disable your Antivirus scanner in case it is known to interfere with Cygwin, otherwise you may end-up with a broken/incomplete installation. See [cygwin.com/faq: What applications have been found to interfere with Cygwin?](https://cygwin.com/faq/faq.html#faq.using.bloda)
