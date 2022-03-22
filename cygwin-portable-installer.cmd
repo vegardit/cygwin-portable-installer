@@ -672,6 +672,8 @@ if "%INSTALL_NODEJS%" == "yes" (
     REM https://github.com/vegardit/cygwin-portable-installer/issues/23
     echo function npm^(^) { cmd /c $^(cygpath -w $NODEJS_HOME/npm.cmd^) "$@"; }
     echo export -f npm
+    echo function npx^(^) { cmd /c $^(cygpath -w $NODEJS_HOME/npx.cmd^) "$@"; }
+    echo export -f npx
     echo export PATH="$PATH:$NODEJS_HOME"
   ) >>"%Bashrc_sh%" || goto :fail
 )
