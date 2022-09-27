@@ -63,7 +63,7 @@ set NODEJS_ARCH=auto
 
 :: if set to 'yes' Ansible (https://github.com/ansible/ansible) will be installed automatically
 set INSTALL_ANSIBLE=no
-set ANSIBLE_GIT_BRANCH=stable-2.12
+set ANSIBLE_GIT_BRANCH=stable-2.14
 
 :: if set to 'yes' AWS CLI (https://github.com/aws/aws-cli) will be installed automatically
 set INSTALL_AWS_CLI=no
