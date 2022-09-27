@@ -1,7 +1,7 @@
 @echo off
 
 ::
-:: Copyright 2017-2021 by Vegard IT GmbH (https://vegardit.com) and the cygwin-portable-installer contributors.
+:: Copyright 2017-2022 by Vegard IT GmbH (https://vegardit.com) and the cygwin-portable-installer contributors.
 :: SPDX-License-Identifier: Apache-2.0
 ::
 :: @author Sebastian Thomschke, Vegard IT GmbH
@@ -332,7 +332,11 @@ echo Creating [%Init_sh%]...
     echo   echo "*******************************************************************************"
     echo   echo "* Installing ConEmu..."
     echo   echo "*******************************************************************************"
-    echo   conemu_url="https://github.com$(wget https://github.com/Maximus5/ConEmu/releases/latest -O - 2>/dev/null | egrep '/.*/releases/download/.*/.*7z' -o)" ^&^& \
+    echo   # this may hit API rate limits:
+    echo   # conemu_url="$(curl -sL https://api.github.com/repos/Maximus5/ConEmu/releases/latest | egrep '[^"]+/releases/download/.*/.*[.]7z' -o^)" && \
+    echo   # workaround:
+    echo   conemu_url="https://github.com$(curl -s $(curl -Ls -o /dev/null -w %%{url_effective} https://github.com/Maximus5/ConEmu/releases/latest | sed s/tag/expanded_assets/) | egrep '/.*/releases/download/.*/.*[.]7z' -o)" ^&^& \
+    echo.
     echo   echo "Download URL=$conemu_url" ^&^& \
     echo   wget -O "${conemu_dir}.7z" $conemu_url ^&^& \
     echo   mkdir "$conemu_dir" ^&^& \
