@@ -103,13 +103,13 @@ set INSTALL_BASH_FUNK=yes
 :: if set to 'yes' Node.js (https://nodejs.org/) will be installed automatically
 set INSTALL_NODEJS=yes
 :: Use of the folder names found here https://nodejs.org/dist/ as version name.
-set NODEJS_VERSION=latest-v14.x
+set NODEJS_VERSION=latest-v18.x
 :: one of: auto,64,32 - specifies if 32 or 64 bit version should be installed or automatically detected based on current OS architecture
 set NODEJS_ARCH=auto
 
 :: if set to 'yes' Ansible (https://github.com/ansible/ansible) will be installed automatically
 set INSTALL_ANSIBLE=yes
-set ANSIBLE_GIT_BRANCH=stable-2.10
+set ANSIBLE_GIT_BRANCH=stable-2.14
 
 :: if set to 'yes' AWS CLI (https://github.com/aws/aws-cli) will be installed automatically
 set INSTALL_AWS_CLI=yes
