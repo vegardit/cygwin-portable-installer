@@ -1,10 +1,8 @@
 @echo off
 
-::
-:: Copyright 2017-2022 by Vegard IT GmbH (https://vegardit.com) and the cygwin-portable-installer contributors.
+:: SPDX-FileCopyrightText: © Vegard IT GmbH (https://vegardit.com) and contributors
+:: SPDX-FileContributor: Sebastian Thomschke, Vegard IT GmbH
 :: SPDX-License-Identifier: Apache-2.0
-::
-:: @author Sebastian Thomschke, Vegard IT GmbH
 
 
 :: ABOUT
