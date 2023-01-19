@@ -4,7 +4,6 @@
 :: SPDX-FileContributor: Sebastian Thomschke, Vegard IT GmbH
 :: SPDX-License-Identifier: Apache-2.0
 
-
 :: ABOUT
 :: =====
 :: This self-contained Windows batch file creates a portable Cygwin (https://cygwin.com/mirrors.html) installation.
@@ -55,7 +54,7 @@ set INSTALL_BASH_FUNK=yes
 :: if set to 'yes' Node.js (https://nodejs.org/) will be installed automatically
 set INSTALL_NODEJS=no
 :: Use of the folder names found here https://nodejs.org/dist/ as version name.
-set NODEJS_VERSION=latest-v16.x
+set NODEJS_VERSION=latest-v18.x
 :: one of: auto,64,32 - specifies if 32 or 64 bit version should be installed or automatically detected based on current OS architecture
 set NODEJS_ARCH=auto
 
