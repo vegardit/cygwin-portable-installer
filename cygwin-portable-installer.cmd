@@ -40,7 +40,7 @@ set CYGWIN_ARCH=auto
 set CYGWIN_USERNAME=root
 
 :: select the packages to be installed automatically via apt-cyg
-set CYGWIN_PACKAGES=bash-completion,bc,bzip2,coreutils,curl,dos2unix,expect,git,git-svn,gnupg,inetutils,jq,lz4,mc,nc,openssh,openssl,perl,psmisc,python37,pv,rsync,ssh-pageant,screen,subversion,unzip,vim,wget,zip,zstd
+set CYGWIN_PACKAGES=bash-completion,bc,bzip2,coreutils,curl,dos2unix,expect,git,git-svn,gnupg,inetutils,jq,lz4,mc,nc,openssh,openssl,perl,psmisc,python39,pv,rsync,ssh-pageant,screen,subversion,unzip,vim,wget,zip,zstd
 
 :: if set to 'yes' the local package cache created by cygwin setup will be deleted after installation/update
 set DELETE_CYGWIN_PACKAGE_CACHE=no
@@ -184,11 +184,11 @@ if "%INSTALL_NODEJS%" == "yes" (
 )
 
 if "%INSTALL_ANSIBLE%" == "yes" (
-  set CYGWIN_PACKAGES=git,openssh,python37,python37-jinja2,python37-six,python37-yaml,%CYGWIN_PACKAGES%
+  set CYGWIN_PACKAGES=cygwin-devel,git,openssh,python39,python39-jinja2,python39-six,python39-yaml,%CYGWIN_PACKAGES%
 )
 
 if "%INSTALL_AWS_CLI%" == "yes" (
-  set CYGWIN_PACKAGES=python37,%CYGWIN_PACKAGES%
+  set CYGWIN_PACKAGES=python39,%CYGWIN_PACKAGES%
 )
 
 :: if conemu install is selected we need to be able to extract 7z archives, otherwise we need to install mintty
