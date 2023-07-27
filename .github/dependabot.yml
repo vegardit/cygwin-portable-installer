@@ -12,5 +12,5 @@ updates:
       prefix-development: chore
       include: scope
     labels:
-      - gha
       - dependencies
+      - gha

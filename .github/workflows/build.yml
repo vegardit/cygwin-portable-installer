@@ -1,21 +1,36 @@
-# https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
 name: Build
 
 on:
   push:
+    branches-ignore: # build all branches except:
+      - 'dependabot/**' # prevent GHA triggered twice (once for commit to the branch and once for opening/syncing the PR)
+    tags-ignore: # don't build tags
+    - '**'
     paths-ignore:
+    - '**/*.adoc'
     - '**/*.md'
+    - '.editorconfig'
+    - '.git*'
     - '.github/*.yml'
   pull_request:
   workflow_dispatch:
     # https://github.blog/changelog/2020-07-06-github-actions-manual-triggers-with-workflow_dispatch/
 
+defaults:
+  run:
+    shell: cmd
+
 jobs:
   build:
     runs-on: windows-latest
+
     steps:
-    - name: "SCM Checkout"
-      uses: actions/checkout@v3 #https://github.com/actions/checkout
+    - name: Show environment variables
+      run: set
+
+    - name: Git Checkout
+      uses: actions/checkout@v3 # https://github.com/actions/checkout
 
     - name: "Cache: cygwin packages repository"
       uses: actions/cache@v3
@@ -24,13 +39,10 @@ jobs:
         key: ${{ runner.os }}-cygwinrepo
 
     - name: "Install: cygwin-portable"
-      shell: cmd
       run: call .\cygwin-portable-installer.cmd
 
     - name: "Test: Start cygwin-portable"
-      shell: cmd
       run: call .\cygwin-portable.cmd "bash --version"
 
     - name: "Test: apt-cyg update"
-      shell: cmd
       run: call .\cygwin-portable.cmd "apt-cyg update"
