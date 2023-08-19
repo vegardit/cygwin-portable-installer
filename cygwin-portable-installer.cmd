@@ -395,12 +395,12 @@ echo Creating [%Init_sh%]...
     echo   echo "*******************************************************************************"
     echo   [[ -e /opt ]] ^|^| mkdir /opt
     echo   if hash git ^&^>/dev/null; then
-    echo     git clone https://github.com/vegardit/bash-funk --branch master --single-branch --depth 1 --shallow-submodules /opt/bash-funk
+    echo     git clone https://github.com/vegardit/bash-funk --branch main --single-branch --depth 1 --shallow-submodules /opt/bash-funk
     echo   elif hash svn ^&^>/dev/null; then
     echo     svn checkout https://github.com/vegardit/bash-funk/trunk /opt/bash-funk
     echo   else
     echo     mkdir /opt/bash-funk ^&^& \
-    echo     wget -qO- --show-progress https://github.com/vegardit/bash-funk/tarball/master ^| /usr/bin/tar xzv -C /opt/bash-funk --strip-components 1
+    echo     wget -qO- --show-progress https://github.com/vegardit/bash-funk/tarball/main ^| /usr/bin/tar xzv -C /opt/bash-funk --strip-components 1
     echo   fi
     echo fi
   )
