@@ -3,9 +3,9 @@ name: Build
 
 on:
   push:
-    branches-ignore: # build all branches except:
-      - 'dependabot/**' # prevent GHA triggered twice (once for commit to the branch and once for opening/syncing the PR)
-    tags-ignore: # don't build tags
+    branches-ignore:  # build all branches except:
+    - 'dependabot/**'  # prevent GHA triggered twice (once for commit to the branch and once for opening/syncing the PR)
+    tags-ignore:  # don't build tags
     - '**'
     paths-ignore:
     - '**/*.adoc'
@@ -13,7 +13,18 @@ on:
     - '.editorconfig'
     - '.git*'
     - '.github/*.yml'
+    - '.github/workflows/stale.yml'
   pull_request:
+    paths-ignore:
+    - '**/*.adoc'
+    - '**/*.md'
+    - '.editorconfig'
+    - '.git*'
+    - '.github/*.yml'
+    - '.github/workflows/stale.yml'
+  schedule:
+    # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
+    - cron: '0 17 * * 3'
   workflow_dispatch:
     # https://github.blog/changelog/2020-07-06-github-actions-manual-triggers-with-workflow_dispatch/
 
@@ -22,21 +33,33 @@ defaults:
     shell: cmd
 
 jobs:
+
+  ###########################################################
   build:
+  ###########################################################
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os:
+        os:  # https://github.com/actions/runner-images#available-images
         - windows-2019
         - windows-2022
+        - windows-2025
 
     steps:
-    - name: Show environment variables
-      run: set
+    - name: "Show: GitHub context"
+      env:
+        GITHUB_CONTEXT: ${{ toJSON(github) }}
+      run: echo $GITHUB_CONTEXT
+
+
+    - name: "Show: environment variables"
+      run: env | sort
+
 
     - name: Git Checkout
-      uses: actions/checkout@v4 # https://github.com/actions/checkout
+      uses: actions/checkout@v4  # https://github.com/actions/checkout
+
 
     - name: "Cache: cygwin packages repository"
       uses: actions/cache@v4
@@ -44,11 +67,14 @@ jobs:
         path: cygwin\.pkg-cache
         key: ${{ runner.os }}-cygwinrepo
 
+
     - name: "Install: cygwin-portable"
       run: call .\cygwin-portable-installer.cmd
 
+
     - name: "Test: Start cygwin-portable"
       run: call .\cygwin-portable.cmd "bash --version"
+
 
     - name: "Test: apt-cyg update"
       run: call .\cygwin-portable.cmd "apt-cyg update"
