@@ -19,9 +19,13 @@
 for %%a in (%*) do (
   if [%%~a]==[--debug] echo on
 )
+:: skip CONFIG_CUSTOMIZATION step; assumes the caller has the variables already set
+for %%a in (%*) do (
+  if [%%~a]==[--skip-config-env] if defined CYGWIN_MIRROR goto :END_CONFIG_CUSTOMIZATION
+)
 
 :: ============================================================================================================
-:: CONFIG CUSTOMIZATION START
+:CONFIG_CUSTOMIZATION
 :: ============================================================================================================
 
 :: You can customize the following variables to your needs before running the batch file:
@@ -103,7 +107,7 @@ set MINTTY_OPTIONS=--Title cygwin-portable ^
   -o Locale=C
 
 :: ============================================================================================================
-:: CONFIG CUSTOMIZATION END
+:END_CONFIG_CUSTOMIZATION
 :: ============================================================================================================
 
 echo.
